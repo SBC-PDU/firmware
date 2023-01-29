@@ -13,20 +13,33 @@
 
 #include "nvs_manager.h"
 
+/**
+ * Simple Network Time Protocol client
+ */
 class Ntp {
     public:
+        /**
+         * @brief Construct a new SNTP client
+         */
         Ntp();
+        
+        /**
+         * @brief Obtains the current time from NTP servers
+         */
         static void obtainTime();
+
+        /**
+         * @brief Notify time syncchronization
+         * 
+         * @param tv Time
+         */
         static void notifySyncronization(struct timeval *tv);
 
     private:
-        /**
-         * NVS manager
-         */
+        /// @brief NVS manager
         NvsManager nvs = NvsManager("ntp");
-
+        /// @brief  NTP server list
         std::vector<std::string> servers;
+        /// @brief Timezone
         std::string timezone;
 };
-
-void ntp_init(void);

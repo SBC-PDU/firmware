@@ -23,13 +23,13 @@ bool MqttLastWillAndTestament::getRetain() const {
 MqttConfig::MqttConfig() {
     memset(&this->config, 0, sizeof(esp_mqtt_client_config_t));
     nvs.getString("uri", this->brokerUri);
-    this->config.uri = this->brokerUri.c_str();
+    this->config.broker.address.uri = this->brokerUri.c_str();
     nvs.getString("username", this->username);
-    this->config.username = this->username.c_str();
+    this->config.credentials.username = this->username.c_str();
     nvs.getString("password", this->password);
-    this->config.password = this->password.c_str();
+    this->config.credentials.authentication.password = this->password.c_str();
     //this->config.use_global_ca_store = true;
-    this->config.keepalive = 15;
+    this->config.session.keepalive = 15;
 }
 
 const esp_mqtt_client_config_t &MqttConfig::get() {
@@ -41,11 +41,11 @@ void MqttConfig::setLastWillAndTestament(MqttLastWillAndTestament *lwt) {
     if (lwt == nullptr) {
         return;
     }
-    this->config.lwt_topic = lwt->getTopic().c_str();
-    this->config.lwt_msg = lwt->getMessage().c_str();
-    this->config.lwt_msg_len = lwt->getMessage().length();
-    this->config.lwt_qos = lwt->getQos();
-    this->config.lwt_retain = lwt->getRetain();
+    this->config.session.last_will.topic = lwt->getTopic().c_str();
+    this->config.session.last_will.msg = lwt->getMessage().c_str();
+    this->config.session.last_will.msg_len = lwt->getMessage().length();
+    this->config.session.last_will.qos = lwt->getQos();
+    this->config.session.last_will.retain = lwt->getRetain();
 }
 
 static void inline log_error_if_nonzero(const char *message, int error_code) {
@@ -79,7 +79,7 @@ Mqtt::Mqtt(const MqttConfig &mqttConfig): config(mqttConfig) {
 }
 
 void Mqtt::eventHandler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data) {
-    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
+    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%ld", base, event_id);
     esp_mqtt_event_handle_t event = static_cast<esp_mqtt_event_handle_t>(event_data);
     Mqtt *mqtt = reinterpret_cast<Mqtt *>(handler_args);
 

@@ -87,14 +87,52 @@ typedef enum {
     INA3221_CHANNEL_3_DISABLE = 0,
 } ina3221_channel_enable_t;
 
+/**
+ * @brief TI INA3221 driver
+ */
 class Ina3221 {
     public:
+        /**
+         * @brief Construct a new instance of INA3221 driver
+         * 
+         * @param i2c I2C master driver
+         * @param address I2C address
+         */
         Ina3221(I2C *i2c, ina3221_address_t address);
+
+        /**
+         * @brief Writes a configuration into INA3221
+         * 
+         * @param config Configuration to write
+         */
         void writeConfiguration(uint16_t config);
+
+        /**
+         * @brief Reads a configuration from INA3221
+         * 
+         * @return uint16_t Configuration
+         */
         uint16_t readConfiguration();
+
+        /**
+         * @brief Reads the bus voltage at specified channel
+         * 
+         * @param channel Channel
+         * @return float Bus voltage
+         */
         float readBusVoltage(ina3221_channel_t channel);
+
+        /**
+         * @brief Reads the current at specified channel
+         * 
+         * @param channel Channel
+         * @param shunt Shunt resistor value
+         * @return float Current
+         */
         float readCurrent(ina3221_channel_t channel, float shunt);
     private:
+        /// @brief Pointer to I2C master instance
         I2C *i2c;
+        /// @brief I2C address
         ina3221_address_t address;
 };
