@@ -3,6 +3,7 @@
 #include <driver/gpio.h>
 
 #include "ina3221.h"
+#include "network/mqtt.h"
 
 /**
  * @brief USB output
@@ -16,8 +17,9 @@ class Output {
          * @param channel INA3221 channel ID
          * @param enable Enable GPIO pin
          * @param alert Alert GPIO pin
+         * @param index Output index
          */
-        Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, gpio_num_t alert);
+        Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, gpio_num_t alert, uint8_t index);
 
         /**
          * @brief Is the output in alert state?
@@ -31,10 +33,9 @@ class Output {
          * @brief Adds the alert interrupt handler
          * 
          * @param handler Interrupr handler
-         * @param args Paramameter for interrupt handler
          * @return esp_err_t 
          */
-        esp_err_t addAlertHandler(gpio_isr_t handler, void* args);
+        esp_err_t addAlertHandler(gpio_isr_t handler);
 
         /**
          * @brief Removes the alert interrupr handler
@@ -71,6 +72,42 @@ class Output {
          * @return float Voltage in volts
          */
         float readVoltage();
+
+        /**
+         * @brief Returns the base MQTT topic
+         * 
+         * @return std::string Base MQTT topic
+         */
+        std::string getBaseMqttTopic();
+
+        /**
+         * @brief Publishes alest state to MQTT
+         * 
+         * @param mqtt Pointer to MQTT client instance
+         */
+        void publishAlert(Mqtt *mqtt);
+
+        /**
+         * @brief Publishes measurements to MQTT 
+         * 
+         * @param mqtt Pointer to MQTT client instance
+         */
+        void publishMeasurements(Mqtt *mqtt);
+
+        /**
+         * @brief MQTT receive message callback
+         * 
+         * @param event MQTT event
+         */
+        void receiveMqttCallback(esp_mqtt_event_handle_t event);
+
+        /**
+         * @brief Subscribes for output enablement state
+         * 
+         * @param mqtt Pointer to MQTT client instance
+         * @param callback Subscribe callback
+         */
+        void subscribeEnablement(Mqtt *mqtt, Mqtt::subscribe_callback_t callback);
     public:
         /// @brief Pointer to INA3221 driver instance
         Ina3221 *ina3221;
@@ -82,4 +119,8 @@ class Output {
         gpio_num_t alertPin;
         /// @brief Enable GPIO pin
         gpio_num_t enablePin;
+        /// @brief Output index
+        uint8_t index;
+        /// @brief Base MQTT topic
+        std::string baseMqttTopic;
 };

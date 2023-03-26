@@ -1,6 +1,6 @@
 #include "output.h"
 
-Output::Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, gpio_num_t alert): ina3221(ina3221), channel(channel), alertPin(alert), enablePin(enable) {
+Output::Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, gpio_num_t alert, uint8_t index): ina3221(ina3221), channel(channel), alertPin(alert), enablePin(enable), index(index) {
     gpio_config_t alertConfig = {
         .pin_bit_mask = (1ULL << static_cast<int>(this->alertPin)),
         .mode = GPIO_MODE_INPUT,
@@ -18,14 +18,15 @@ Output::Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, g
     };
     ESP_ERROR_CHECK(gpio_config(&enableConfig));
     ESP_ERROR_CHECK(gpio_set_level(this->enablePin, 1));
+    this->baseMqttTopic = Mqtt::getBaseTopic() + "/outputs/" + std::to_string(this->index);
 }
 
 bool Output::hasAlert() {
     return gpio_get_level(this->alertPin) == 0;
 }
 
-esp_err_t Output::addAlertHandler(gpio_isr_t handler, void *args) {
-    return gpio_isr_handler_add(this->alertPin, handler, args);
+esp_err_t Output::addAlertHandler(gpio_isr_t handler) {
+    return gpio_isr_handler_add(this->alertPin, handler, (void *) this->index);
 }
 
 esp_err_t Output::removeAlertHandler() {
@@ -47,4 +48,24 @@ float Output::readCurrent() {
 
 float Output::readVoltage() {
     return this->ina3221->readBusVoltage(this->channel);
+}
+
+std::string Output::getBaseMqttTopic() {
+    return this->baseMqttTopic;
+}
+
+void Output::publishAlert(Mqtt *mqtt) {
+    mqtt->publishString(this->baseMqttTopic + "/alert", std::to_string(this->hasAlert()), 2, false);
+}
+
+void Output::publishMeasurements(Mqtt *mqtt) {
+    this->publishAlert(mqtt);
+    mqtt->publishString(this->baseMqttTopic + "/enabled", std::to_string(this->isEnabled()), 2, false);
+    mqtt->publishString(this->baseMqttTopic + "/current", std::to_string(fabs(this->readCurrent())), 2, false);
+    mqtt->publishString(this->baseMqttTopic + "/voltage", std::to_string(this->readVoltage()), 2, false);
+
+}
+
+void Output::subscribeEnablement(Mqtt* mqtt, Mqtt::subscribe_callback_t callback) {
+    mqtt->subscribe(this->baseMqttTopic + "/enable", callback, 2);
 }

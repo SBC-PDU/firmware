@@ -5,9 +5,12 @@ std::map<wifi_auth_mode_t, std::string> Wifi::authModes = {
     {WIFI_AUTH_WEP, "WEP"},
     {WIFI_AUTH_WPA_PSK, "WPA-Personal"},
     {WIFI_AUTH_WPA2_PSK, "WPA2-Personal"},
+    {WIFI_AUTH_WPA_WPA2_PSK, "WPA/WPA2-Personal"},
     {WIFI_AUTH_WPA2_ENTERPRISE, "WPA2-Enterprise"},
     {WIFI_AUTH_WPA3_PSK, "WPA3-Personal"},
     {WIFI_AUTH_WPA2_WPA3_PSK, "WPA2/WPA3-Personal"},
+    {WIFI_AUTH_WAPI_PSK, "WAPI-PSK"},
+    {WIFI_AUTH_OWE, "OWE"},
 };
 
 WifiApInfo::WifiApInfo(const wifi_ap_record_t &info, bool inUse) : inUse(inUse) {
@@ -86,7 +89,7 @@ void Wifi::eventHandler(void* arg, esp_event_base_t base, int32_t id, void* data
         ESP_ERROR_CHECK(esp_netif_create_ip6_linklocal(Wifi::netifSta));
     } else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
         wifi_event_sta_disconnected_t *event = reinterpret_cast<wifi_event_sta_disconnected_t*>(data);
-        ESP_LOGW(TAG, "Disconnected from the AP (SSID: %s), reason: %d.", event->ssid, event->reason);
+        ESP_LOGE(TAG, "Disconnected from the AP (SSID: %s), reason: %d (%s).", event->ssid, event->reason, esp_err_to_name(event->reason));
         if (Wifi::retries < Wifi::maxRetries) {
             esp_wifi_connect();
             Wifi::retries++;

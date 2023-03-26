@@ -120,6 +120,11 @@ class Mqtt {
         Mqtt(const MqttConfig &config);
 
         /**
+         * @brief Connects to MQTT broker
+         */
+        void connect();
+
+        /**
          * Event handler registered to receive MQTT events
          * This function is called by the MQTT client event loop.
          * @param handler_args user data registered to the event.
@@ -165,7 +170,7 @@ class Mqtt {
          * Returns base MQTT topic
          * @return Base MQTT topic
          */
-        std::string getBaseTopic();
+        static std::string getBaseTopic();
 
     protected:
         /// Subscribe callbacks

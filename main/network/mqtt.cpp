@@ -28,7 +28,9 @@ MqttConfig::MqttConfig() {
     this->config.credentials.username = this->username.c_str();
     nvs.getString("password", this->password);
     this->config.credentials.authentication.password = this->password.c_str();
-    //this->config.use_global_ca_store = true;
+    if (this->brokerUri.starts_with("mqtts://")) {
+        this->config.broker.verification.use_global_ca_store = true;
+    }
     this->config.session.keepalive = 15;
 }
 
@@ -72,7 +74,10 @@ Mqtt::Mqtt(const MqttConfig &mqttConfig): config(mqttConfig) {
     }
     /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
     ESP_ERROR_CHECK(esp_mqtt_client_register_event(Mqtt::handle, static_cast<esp_mqtt_event_id_t>(ESP_EVENT_ANY_ID), &Mqtt::eventHandler, reinterpret_cast<void*>(this)));
-    (esp_mqtt_client_start(Mqtt::handle));
+}
+
+void Mqtt::connect() {
+    esp_mqtt_client_start(Mqtt::handle);
     if (Mqtt::handle == nullptr) {
         ESP_LOGE(TAG, "MQTT client handle in NULL");
     }
@@ -99,7 +104,7 @@ void Mqtt::eventHandler(void *handler_args, esp_event_base_t base, int32_t event
             }
             break;
         case MQTT_EVENT_DISCONNECTED:
-            ESP_LOGI(TAG, "Disconnected from the MQTT broker.");
+            ESP_LOGE(TAG, "Disconnected from the MQTT broker.");
             break;
         case MQTT_EVENT_SUBSCRIBED:
             break;
@@ -125,7 +130,7 @@ void Mqtt::eventHandler(void *handler_args, esp_event_base_t base, int32_t event
                 log_error_if_nonzero("reported from esp-tls", event->error_handle->esp_tls_last_esp_err);
                 log_error_if_nonzero("reported from tls stack", event->error_handle->esp_tls_stack_err);
                 log_error_if_nonzero("captured as transport's socket errno",  event->error_handle->esp_transport_sock_errno);
-                ESP_LOGI(TAG, "Last errno string (%s)", strerror(event->error_handle->esp_transport_sock_errno));
+                ESP_LOGE(TAG, "Last errno string (%s)", strerror(event->error_handle->esp_transport_sock_errno));
             }
             break;
         default:
@@ -140,7 +145,7 @@ int Mqtt::publishString(const std::string &topic, const std::string &data, const
         return -1;
     }
     int msgId = esp_mqtt_client_publish(Mqtt::handle, topic.c_str(), data.c_str(), data.length(), qos, retain);
-    ESP_LOGI(TAG, "Published \"%s\" to the topic \"%s\" with QoS %d. Message ID: %d", data.c_str(), topic.c_str(), qos, msgId);
+    ESP_LOGD(TAG, "Published \"%s\" to the topic \"%s\" with QoS %d. Message ID: %d", data.c_str(), topic.c_str(), qos, msgId);
     if (msgId == -1) {
         ESP_LOGE(TAG, "Failed to publish \"%s\" to the topic \"%s\" with QoS %d.", data.c_str(), topic.c_str(), qos);
     }
@@ -179,6 +184,6 @@ int Mqtt::unsubscribe(const std::string &topic) {
     return msgId;
 }
 
-std::string getBaseTopic() {
+std::string Mqtt::getBaseTopic() {
     return "sbc_pdu/" + Wifi::getPrimaryMacAddress();
 }

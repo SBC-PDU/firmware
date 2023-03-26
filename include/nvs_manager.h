@@ -87,6 +87,7 @@ class NvsManager {
         }
 
     private:
+        /// @brief NVS handle
         std::shared_ptr<nvs::NVSHandle> handle;
 
 };
