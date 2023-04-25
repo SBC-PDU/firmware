@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2023 Roman Ondráček
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #pragma once
 
 #include <driver/gpio.h>
@@ -6,13 +21,12 @@
 #include "network/mqtt.h"
 
 /**
- * @brief USB output
+ * Power output
  */
 class Output {
     public:
         /**
-         * @brief Construct a new Output object
-         * 
+         * Constructor
          * @param ina3221 Pointer to INA3221 driver instance
          * @param channel INA3221 channel ID
          * @param enable Enable GPIO pin
@@ -22,88 +36,76 @@ class Output {
         Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, gpio_num_t alert, uint8_t index);
 
         /**
-         * @brief Is the output in alert state?
-         * 
+         * Is the output in alert state?
          * @return true Alert occured - over-current or over-temperature protection asserted
          * @return false Normal operation
          */
         bool hasAlert();
 
         /**
-         * @brief Adds the alert interrupt handler
-         * 
+         * Adds the alert interrupt handler
          * @param handler Interrupr handler
-         * @return esp_err_t 
+         * @return Execution status
          */
         esp_err_t addAlertHandler(gpio_isr_t handler);
 
         /**
-         * @brief Removes the alert interrupr handler
-         * 
-         * @return esp_err_t 
+         * Removes the alert interrupr handler
+         * @return Execution status
          */
         esp_err_t removeAlertHandler();
 
         /**
-         * @brief Enables the output
-         * 
+         * Enables the output
          * @param enabled Output enablement
          */
         void enable(bool enabled);
 
         /**
-         * @brief Is the output enabled?
-         * 
+         * Is the output enabled?
          * @return true Output enabled
          * @return false Output disabled
          */
         bool isEnabled();
 
         /**
-         * @brief Reads the current flowing through the output
-         * 
+         * Reads the current flowing through the output
          * @return float Current in milliamps
          */
         float readCurrent();
 
         /**
-         * @brief Reads voltage on the output
-         * 
+         * Reads voltage on the output
          * @return float Voltage in volts
          */
         float readVoltage();
 
         /**
-         * @brief Returns the base MQTT topic
-         * 
+         * Returns the base MQTT topic
          * @return std::string Base MQTT topic
          */
         std::string getBaseMqttTopic();
 
         /**
-         * @brief Publishes alest state to MQTT
-         * 
+         * Publishes alest state to MQTT
          * @param mqtt Pointer to MQTT client instance
          */
         void publishAlert(Mqtt *mqtt);
 
         /**
-         * @brief Publishes measurements to MQTT 
-         * 
+         * Publishes measurements to MQTT 
          * @param mqtt Pointer to MQTT client instance
          */
         void publishMeasurements(Mqtt *mqtt);
 
         /**
-         * @brief MQTT receive message callback
-         * 
+         * MQTT receive message callback
          * @param event MQTT event
          */
         void receiveMqttCallback(esp_mqtt_event_handle_t event);
 
         /**
-         * @brief Subscribes for output enablement state
-         * 
+         * Subscribes for output enablement state
          * @param mqtt Pointer to MQTT client instance
          * @param callback Subscribe callback
          */
@@ -120,7 +122,7 @@ class Output {
         /// @brief Enable GPIO pin
         gpio_num_t enablePin;
         /// @brief Output index
-        uint8_t index;
+        uint32_t index;
         /// @brief Base MQTT topic
         std::string baseMqttTopic;
 };

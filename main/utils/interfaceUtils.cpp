@@ -13,24 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
+#include "utils/interfaceUtils.h"
 
-#include <exception>
-#include <string>
-
-#include <esp_err.h>
-#include <esp_log.h>
-#include <esp_spiffs.h>
-#include <esp_vfs.h>
-
-/**
- * SPIFFS
- */
-class SPIFFS {
-    public:
-        /**
-         * Constructor
-         * @param basePath Base path
-         */
-        explicit SPIFFS(const std::string &basePath);
-};
+std::string InterfaceUtils::macToString(uint8_t buffer[6], const std::string &separator) {
+    std::stringstream address;
+    for (uint8_t i = 0; i < 6; ++i) {
+        address << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(buffer[i]);
+        if (i != 5) {
+            address << separator;
+        }
+    }
+    return address.str();
+}

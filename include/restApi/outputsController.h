@@ -16,29 +16,30 @@
 #pragma once
 
 #include <functional>
+#include <map>
 #include <string>
+#include <vector>
 
 #include <esp_err.h>
 #include <esp_http_server.h>
 
 #include <cJSON.h>
 
-#include "network/wifi.h"
+#include "output.h"
 #include "restApi/basicAuthenticator.h"
-#include "utils/interfaceUtils.h"
 #include "utils/restApiUtils.h"
 
 namespace sbc_pdu {
     namespace restApi {
         /**
-         * WiFi manager REST API endpoints
+         * Power outputs manager REST API endpoints
          */
-        class WifiController {
+        class OutputsController {
             public:
                 /**
                  * Constructor
                  */
-                explicit WifiController(Wifi *manager);
+                OutputsController(std::map<uint8_t, Output*> *outputs);
                 
                 /**
                  * Registers the endpoints
@@ -47,29 +48,23 @@ namespace sbc_pdu {
                 void registerEndpoints(const httpd_handle_t &server);
 
                 /**
-                 * Scans the available WiFi APs
+                 * Returns information about zhe outputs
                  * @param request HTTP request
                  */
-                static esp_err_t scan(httpd_req_t *request);
+                static esp_err_t get(httpd_req_t *request);
 
                 /**
-                 * Returns the WiFi config
+                 * Switches on/off the output
                  * @param request HTTP request
                  */
-                static esp_err_t getConfig(httpd_req_t *request);
-
-                /**
-                 * Updates the WiFi config
-                 * @param request HTTP request
-                 */
-                static esp_err_t putConfig(httpd_req_t *request);
+                static esp_err_t switchOutput(httpd_req_t *request);
             private:
-                /// Retrieve WiFi config endpoint handler
-                httpd_uri_t getConfigHandler;
-                /// Update WiFi config endpoint handler
-                httpd_uri_t putConfigHandler;
-                /// Scan endpoint handler
-                httpd_uri_t scanHandler;
+                /// Outputs
+                static std::map<uint8_t, Output*> *outputs;
+                /// Retrieve information about outputs endpoint handler
+                httpd_uri_t getHandler;
+                /// Switch output endpoint handler
+                httpd_uri_t switchOutputHandler;
         };
     }
 }

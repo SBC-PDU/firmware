@@ -23,22 +23,25 @@
 
 #include <cJSON.h>
 
-#include "network/wifi.h"
+#include "network/hostname.h"
 #include "restApi/basicAuthenticator.h"
-#include "utils/interfaceUtils.h"
 #include "utils/restApiUtils.h"
+
+#ifndef MIN
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#endif
 
 namespace sbc_pdu {
     namespace restApi {
         /**
-         * WiFi manager REST API endpoints
+         * Hostname manager REST API endpoints
          */
-        class WifiController {
+        class HostnameController {
             public:
                 /**
                  * Constructor
                  */
-                explicit WifiController(Wifi *manager);
+                explicit HostnameController(HostnameManager *hostnameManager);
                 
                 /**
                  * Registers the endpoints
@@ -47,29 +50,21 @@ namespace sbc_pdu {
                 void registerEndpoints(const httpd_handle_t &server);
 
                 /**
-                 * Scans the available WiFi APs
+                 * Returns the hostname
                  * @param request HTTP request
                  */
-                static esp_err_t scan(httpd_req_t *request);
+                static esp_err_t get(httpd_req_t *request);
 
                 /**
-                 * Returns the WiFi config
+                 * Updates the hostname
                  * @param request HTTP request
                  */
-                static esp_err_t getConfig(httpd_req_t *request);
-
-                /**
-                 * Updates the WiFi config
-                 * @param request HTTP request
-                 */
-                static esp_err_t putConfig(httpd_req_t *request);
+                static esp_err_t put(httpd_req_t *request);
             private:
-                /// Retrieve WiFi config endpoint handler
-                httpd_uri_t getConfigHandler;
-                /// Update WiFi config endpoint handler
-                httpd_uri_t putConfigHandler;
-                /// Scan endpoint handler
-                httpd_uri_t scanHandler;
+                /// Retrieve hostname endpoint handler
+                httpd_uri_t getHandler;
+                /// Update hostname endpoint handler
+                httpd_uri_t putHandler;
         };
     }
 }

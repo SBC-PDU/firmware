@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2023 Roman Ondráček
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include "restApi/basicAuthenticator.h"
 
 using namespace sbc_pdu::restApi;
@@ -11,61 +26,46 @@ BasicAuthenticator::BasicAuthenticator() {
 }
 
 bool BasicAuthenticator::authenticate(httpd_req_t *request) {
-    size_t buf_len = httpd_req_get_hdr_value_len(request, "Authorization");
-    if (buf_len == 0) {
-        ESP_LOGE(TAG, "No auth header received");
+    const char headerName[] = "Authorization";
+    size_t bufferLength = httpd_req_get_hdr_value_len(request, headerName);
+    if (bufferLength == 0) {
+        ESP_LOGE(TAG, "No Authorization header received");
         this->createUnauthorizedResponse(request);
         return false;
     }
-    char *buf = new char[buf_len + 1];
-    if (!buf) {
+    char *buffer = new char[bufferLength + 1];
+    if (!buffer) {
         ESP_LOGE(TAG, "No enough memory for basic authorization");
         httpd_resp_send_err(request, HTTPD_500_INTERNAL_SERVER_ERROR, "Server Error");
         return false;
     }
 
-    if (httpd_req_get_hdr_value_str(request, "Authorization", buf, buf_len + 1) == ESP_OK) {
-        ESP_LOGI(TAG, "Found header => Authorization: %s", buf);
+    if (httpd_req_get_hdr_value_str(request, headerName, buffer, bufferLength + 1) == ESP_OK) {
+        ESP_LOGI(TAG, "Found header => Authorization: %s", buffer);
     } else {
-        ESP_LOGE(TAG, "No auth value received");
+        ESP_LOGE(TAG, "No Authorization header received");
         this->createUnauthorizedResponse(request);
-        delete[] buf;
+        delete[] buffer;
         return false;
     }
-    std::string actualHeader = std::string(buf);
-    int compare = this->expectedAuthorizationHeader.compare(actualHeader);
-    if (compare != 0) {
+    if (std::string(buffer) != this->expectedAuthorizationHeader) {
         this->createUnauthorizedResponse(request);
-        delete[] buf;
+        delete[] buffer;
         return false;
     }
     ESP_LOGI(TAG, "Authenticated!");
-    delete[] buf;
+    delete[] buffer;
     return true;
 }
 
 void BasicAuthenticator::createUnauthorizedResponse(httpd_req_t *request) {
-    httpd_resp_set_type(request, "application/json");
+    httpd_resp_set_type(request, "text/plain");
     httpd_resp_set_hdr(request, "Connection", "keep-alive");
     httpd_resp_set_hdr(request, "WWW-Authenticate", "Basic realm=\"SBC-PDU\"");
     httpd_resp_send_err(request, HTTPD_401_UNAUTHORIZED, "Unauthorized");
 }
 
 std::string BasicAuthenticator::getExpectedAuthorizationHeader() {
-    size_t out;
-    size_t n = 0;
     std::string credentials = this->username + ":" + this->password;
-    const unsigned char* bufferToEncode = reinterpret_cast<const unsigned char*>(credentials.c_str());
-    // Calculate buffer size
-    esp_crypto_base64_encode(nullptr, 0, &n, bufferToEncode, credentials.length());
-    char *digest = new char[n + 1];
-    if (digest) {
-        // Encode base64 from string username:password
-        esp_crypto_base64_encode(reinterpret_cast<unsigned char*>(digest), n, &out, bufferToEncode, credentials.length());
-    } else {
-        return "";
-    }
-    std::string header = std::string("Basic ") + digest;
-    delete[] digest;
-    return header;
+    return std::string("Basic ") + Base64::encode(credentials);
 }

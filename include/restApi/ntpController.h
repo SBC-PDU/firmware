@@ -17,28 +17,28 @@
 
 #include <functional>
 #include <string>
+#include <vector>
 
 #include <esp_err.h>
 #include <esp_http_server.h>
 
 #include <cJSON.h>
 
-#include "network/wifi.h"
+#include "network/sntp.h"
 #include "restApi/basicAuthenticator.h"
-#include "utils/interfaceUtils.h"
 #include "utils/restApiUtils.h"
 
 namespace sbc_pdu {
     namespace restApi {
         /**
-         * WiFi manager REST API endpoints
+         * NTP manager REST API endpoints
          */
-        class WifiController {
+        class NtpController {
             public:
                 /**
                  * Constructor
                  */
-                explicit WifiController(Wifi *manager);
+                NtpController();
                 
                 /**
                  * Registers the endpoints
@@ -47,29 +47,21 @@ namespace sbc_pdu {
                 void registerEndpoints(const httpd_handle_t &server);
 
                 /**
-                 * Scans the available WiFi APs
+                 * Returns the NTP config
                  * @param request HTTP request
                  */
-                static esp_err_t scan(httpd_req_t *request);
+                static esp_err_t get(httpd_req_t *request);
 
                 /**
-                 * Returns the WiFi config
+                 * Updates the NTP config
                  * @param request HTTP request
                  */
-                static esp_err_t getConfig(httpd_req_t *request);
-
-                /**
-                 * Updates the WiFi config
-                 * @param request HTTP request
-                 */
-                static esp_err_t putConfig(httpd_req_t *request);
+                static esp_err_t put(httpd_req_t *request);
             private:
-                /// Retrieve WiFi config endpoint handler
-                httpd_uri_t getConfigHandler;
-                /// Update WiFi config endpoint handler
-                httpd_uri_t putConfigHandler;
-                /// Scan endpoint handler
-                httpd_uri_t scanHandler;
+                /// Retrieve NTP config endpoint handler
+                httpd_uri_t getHandler;
+                /// Update NTP config endpoint handler
+                httpd_uri_t putHandler;
         };
     }
 }

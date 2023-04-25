@@ -15,22 +15,21 @@
  */
 #pragma once
 
-#include <exception>
+#include <cstdint>
+#include <iomanip>
+#include <sstream>
 #include <string>
 
-#include <esp_err.h>
-#include <esp_log.h>
-#include <esp_spiffs.h>
-#include <esp_vfs.h>
-
 /**
- * SPIFFS
+ * Network interface utils
  */
-class SPIFFS {
+class InterfaceUtils {
     public:
         /**
-         * Constructor
-         * @param basePath Base path
+         * Converts MAC address from array of bytes to string
+         * @param buffer MAC address byte buffer
+         * @param separator Used separator (e.g. `:`)
+         * @return MAC address string
          */
-        explicit SPIFFS(const std::string &basePath);
+        static std::string macToString(uint8_t buffer[6], const std::string &separator);
 };

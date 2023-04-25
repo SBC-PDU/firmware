@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2023 Roman Ondráček
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #pragma once
 
 #include <functional>
@@ -6,51 +21,48 @@
 #include <esp_err.h>
 #include <esp_http_server.h>
 #include <esp_log.h>
-#include <esp_tls_crypto.h>
 
 #include <cJSON.h>
 
-#include "nvs_manager.h"
+#include "nvsManager.h"
+#include "utils/base64.h"
 
 namespace sbc_pdu {
     namespace restApi {
         /**
-         * @brief HTTP Basic authenticator
+         * HTTP Basic authenticator
          */
         class BasicAuthenticator {
             public:
                 /**
-                 * @brief Constructor
+                 * Constructor
                  */
                 explicit BasicAuthenticator();
 
                 /**
-                 * @brief Returns Expected HTTP Authorization header
-                 * 
+                 * Returns Expected HTTP Authorization header
                  * @return std::string Expected HTTP Authorization header
                  */
                 std::string getExpectedAuthorizationHeader();
 
                 /**
-                 * @brief Authenticate the user
-                 * 
+                 * Authenticate the user
                  * @param request HTTP request
                  * @return bool Authentication status
                  */
                 bool authenticate(httpd_req_t *request);
                 
                 /**
-                 * @brief Creates Unauthorized HTTP Response
-                 * 
+                 * Creates Unauthorized HTTP Response
                  * @param request HTTP request
                  */
                 void createUnauthorizedResponse(httpd_req_t *request);
             private:
-                /// @brief Expected Authorizaton HTTP header
+                /// Expected Authorizaton HTTP header
                 std::string expectedAuthorizationHeader;
-                /// @brief  Username
+                ///  Username
                 std::string username;
-                /// @brief Password
+                /// Password
                 std::string password;
                 /// NVS manager
                 NvsManager nvs = NvsManager("httpCredentials");

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2023 Roman Ondráček
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #pragma once
 
 #include <esp_log.h>
@@ -88,51 +103,46 @@ typedef enum {
 } ina3221_channel_enable_t;
 
 /**
- * @brief TI INA3221 driver
+ * TI INA3221 driver
  */
 class Ina3221 {
     public:
         /**
-         * @brief Construct a new instance of INA3221 driver
-         * 
+         * Construct a new instance of INA3221 driver
          * @param i2c I2C master driver
          * @param address I2C address
          */
         Ina3221(I2C *i2c, ina3221_address_t address);
 
         /**
-         * @brief Writes a configuration into INA3221
-         * 
+         * Writes a configuration into INA3221
          * @param config Configuration to write
          */
         void writeConfiguration(uint16_t config);
 
         /**
-         * @brief Reads a configuration from INA3221
-         * 
+         * Reads a configuration from INA3221
          * @return uint16_t Configuration
          */
         uint16_t readConfiguration();
 
         /**
-         * @brief Reads the bus voltage at specified channel
-         * 
+         * Reads the bus voltage at specified channel
          * @param channel Channel
          * @return float Bus voltage
          */
         float readBusVoltage(ina3221_channel_t channel);
 
         /**
-         * @brief Reads the current at specified channel
-         * 
+         * Reads the current at specified channel
          * @param channel Channel
          * @param shunt Shunt resistor value
          * @return float Current
          */
         float readCurrent(ina3221_channel_t channel, float shunt);
     private:
-        /// @brief Pointer to I2C master instance
+        /// Pointer to I2C master instance
         I2C *i2c;
-        /// @brief I2C address
+        /// I2C address
         ina3221_address_t address;
 };

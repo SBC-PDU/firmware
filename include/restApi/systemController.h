@@ -15,30 +15,30 @@
  */
 #pragma once
 
-#include <functional>
-#include <string>
-
+#include <esp_chip_info.h>
 #include <esp_err.h>
 #include <esp_http_server.h>
+#include <esp_ota_ops.h>
+#include <esp_timer.h>
+#include <esp_netif.h>
 
 #include <cJSON.h>
 
 #include "network/wifi.h"
 #include "restApi/basicAuthenticator.h"
 #include "utils/interfaceUtils.h"
-#include "utils/restApiUtils.h"
 
 namespace sbc_pdu {
     namespace restApi {
         /**
-         * WiFi manager REST API endpoints
+         * System information REST API endpoints
          */
-        class WifiController {
+        class SystemController {
             public:
                 /**
                  * Constructor
                  */
-                explicit WifiController(Wifi *manager);
+                explicit SystemController();
                 
                 /**
                  * Registers the endpoints
@@ -47,29 +47,35 @@ namespace sbc_pdu {
                 void registerEndpoints(const httpd_handle_t &server);
 
                 /**
-                 * Scans the available WiFi APs
+                 * Returns the system information
                  * @param request HTTP request
+                 * @return Execution status
                  */
-                static esp_err_t scan(httpd_req_t *request);
+                static esp_err_t getInfo(httpd_req_t *request);
 
                 /**
-                 * Returns the WiFi config
+                 * Restarts the unit
                  * @param request HTTP request
+                 * @return Execution status
                  */
-                static esp_err_t getConfig(httpd_req_t *request);
+                static esp_err_t restart(httpd_req_t *request);
 
                 /**
-                 * Updates the WiFi config
-                 * @param request HTTP request
+                 * Sets the Chip Info object to JSON response
+                 * @param root JSON root object
                  */
-                static esp_err_t putConfig(httpd_req_t *request);
+                static void setChipInfo(cJSON *root);
+
+                /**
+                 * Sets the Network Info object to JSON response
+                 * @param root JSON root object
+                 */
+                static void setNetworkInfo(cJSON *root);
             private:
-                /// Retrieve WiFi config endpoint handler
-                httpd_uri_t getConfigHandler;
-                /// Update WiFi config endpoint handler
-                httpd_uri_t putConfigHandler;
-                /// Scan endpoint handler
-                httpd_uri_t scanHandler;
+                /// Get system info endpoint handler
+                httpd_uri_t getInfoHandler;
+                /// Restart endpoint handler
+                httpd_uri_t restartHandler;
         };
     }
 }

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2023 Roman Ondráček
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include "network/wifi.h"
 
 std::map<wifi_auth_mode_t, std::string> Wifi::authModes = {
@@ -86,7 +101,12 @@ void Wifi::eventHandler(void* arg, esp_event_base_t base, int32_t id, void* data
         esp_wifi_connect();
     } else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_CONNECTED) {
         ESP_LOGI(TAG, "Connected to the AP.");
+#if CONFIG_LWIP_IPV6
+        struct netif *netif = reinterpret_cast<struct netif*>(esp_netif_get_netif_impl(Wifi::netifSta));
         ESP_ERROR_CHECK(esp_netif_create_ip6_linklocal(Wifi::netifSta));
+        dhcp6_enable_stateful(netif);
+        dhcp6_enable_stateless(netif);
+#endif
     } else if (base == WIFI_EVENT && id == WIFI_EVENT_STA_DISCONNECTED) {
         wifi_event_sta_disconnected_t *event = reinterpret_cast<wifi_event_sta_disconnected_t*>(data);
         ESP_LOGE(TAG, "Disconnected from the AP (SSID: %s), reason: %d (%s).", event->ssid, event->reason, esp_err_to_name(event->reason));
@@ -100,19 +120,26 @@ void Wifi::eventHandler(void* arg, esp_event_base_t base, int32_t id, void* data
         ESP_LOGE(TAG, "Unable to connect to the AP.");
     } else if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = reinterpret_cast<ip_event_got_ip_t*>(data);
-        ESP_LOGI(TAG, "Got IPv4 address");
+        ESP_LOGI(TAG, "Got IPv4 address on interface \"%s\"", esp_netif_get_desc(event->esp_netif));
         ESP_LOGI(TAG, "IPv4 address: " IPSTR, IP2STR(&event->ip_info.ip));
         ESP_LOGI(TAG, "IPv4 netmask: " IPSTR, IP2STR(&event->ip_info.netmask));
         ESP_LOGI(TAG, "IPv4 gateway: " IPSTR, IP2STR(&event->ip_info.gw));
         Wifi::retries = 0;
+        xEventGroupSetBits(Wifi::eventGroup, WIFI_CONNECTED_BIT);
     } else if (base == IP_EVENT && id == IP_EVENT_GOT_IP6) {
+#if CONFIG_LWIP_IPV6
         ip_event_got_ip6_t* event = reinterpret_cast<ip_event_got_ip6_t*>(data);
         if (event->esp_netif != Wifi::netifSta) {
             return;
         }
-        ESP_LOGI(TAG, "Got IPv6 address: " IPV6STR, IPV62STR(event->ip6_info.ip));
+        esp_ip6_addr_type_t addressType = esp_netif_ip6_get_addr_type(&event->ip6_info.ip);
+        ESP_LOGI(TAG, "Got IPv6 address on interface \"%s\": " IPV6STR, esp_netif_get_desc(event->esp_netif), IPV62STR(event->ip6_info.ip));
+        if (addressType != ESP_IP6_ADDR_IS_GLOBAL) {
+            return;
+        }
         Wifi::retries = 0;
         xEventGroupSetBits(Wifi::eventGroup, WIFI_CONNECTED_BIT);
+#endif
     }
 }
 
@@ -125,7 +152,9 @@ Wifi::Wifi(HostnameManager *hostnameManager): hostnameManager(hostnameManager) {
 
     ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &Wifi::eventHandler, NULL, &this->eventHandlerWifiAny));
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &Wifi::eventHandler, NULL, &this->eventHandlerIpGotIpv4));
+#if CONFIG_LWIP_IPV6
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_GOT_IP6, &Wifi::eventHandler, NULL, &this->eventHandlerIpGotIpv6));
+#endif
 
     this->config = this->configManager.get();
     wifi_country_t country = {

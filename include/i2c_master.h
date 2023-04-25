@@ -1,3 +1,18 @@
+/**
+ * Copyright 2022-2023 Roman Ondráček
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #pragma once
 
 #include <driver/gpio.h>
@@ -12,13 +27,12 @@
 #define ACK_CHECK_DIS   0x0
 
 /**
- * @brief I2C master
+ * I2C master
  */
 class I2C {
     public:
         /**
-         * @brief Construct a new I2C master instance
-         * 
+         * Construct a new I2C master instance
          * @param port I2C port ID
          * @param sda SDA GPIO pin
          * @param scl SCL GPIO pin
@@ -26,8 +40,12 @@ class I2C {
         I2C(int port, gpio_num_t sda, gpio_num_t scl);
 
         /**
-         * @brief Reads data from I2C slave device
-         * 
+         * Scans I2C slaves on the bus
+         */
+        void scan();
+
+        /**
+         * Reads data from I2C slave device
          * @param address Address
          * @param reg Register
          * @param buffer Buffer
@@ -37,8 +55,7 @@ class I2C {
         esp_err_t read(uint8_t address, uint8_t reg, uint8_t *buffer, size_t size);
 
         /**
-         * @brief Writes data to I2C slave device
-         * 
+         * Writes data to I2C slave device
          * @param address Address
          * @param reg Register
          * @param buffer Buffer
@@ -50,6 +67,6 @@ class I2C {
         /// Logger tag
         static constexpr const char *LOG_TAG = "I2C";
     private:
-        /// @brief I2C port ID
+        /// I2C port ID
         int port;
 };
