@@ -30,41 +30,42 @@
 #include "utils/restApiUtils.h"
 
 namespace sbc_pdu {
-    namespace restApi {
-        /**
-         * Power outputs manager REST API endpoints
-         */
-        class OutputsController {
-            public:
-                /**
-                 * Constructor
-                 */
-                OutputsController(std::map<uint8_t, Output*> *outputs);
-                
-                /**
-                 * Registers the endpoints
-                 * @param server HTTP server handle
-                 */
-                void registerEndpoints(const httpd_handle_t &server);
+	namespace restApi {
+		/**
+		 * Power outputs manager REST API endpoints
+		 */
+		class OutputsController {
+			public:
+				/**
+				 * Constructor
+				 */
+				OutputsController(std::map<uint8_t, Output*> *outputs);
 
-                /**
-                 * Returns information about zhe outputs
-                 * @param request HTTP request
-                 */
-                static esp_err_t get(httpd_req_t *request);
+				/**
+				 * Registers the endpoints
+				 * @param server HTTP server handle
+				 */
+				void registerEndpoints(const httpd_handle_t &server);
 
-                /**
-                 * Switches on/off the output
-                 * @param request HTTP request
-                 */
-                static esp_err_t switchOutput(httpd_req_t *request);
-            private:
-                /// Outputs
-                static std::map<uint8_t, Output*> *outputs;
-                /// Retrieve information about outputs endpoint handler
-                httpd_uri_t getHandler;
-                /// Switch output endpoint handler
-                httpd_uri_t switchOutputHandler;
-        };
-    }
+				/**
+				 * Returns information about zhe outputs
+				 * @param request HTTP request
+				 */
+				static esp_err_t get(httpd_req_t *request);
+
+				/**
+				 * Switches on/off the output
+				 * @param request HTTP request
+				 */
+				static esp_err_t switchOutput(httpd_req_t *request);
+
+			private:
+				/// Outputs
+				static std::map<uint8_t, Output*> *outputs;
+				/// Retrieve information about outputs endpoint handler
+				httpd_uri_t getHandler;
+				/// Switch output endpoint handler
+				httpd_uri_t switchOutputHandler;
+		};
+	}
 }

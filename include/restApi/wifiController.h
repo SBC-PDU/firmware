@@ -29,47 +29,48 @@
 #include "utils/restApiUtils.h"
 
 namespace sbc_pdu {
-    namespace restApi {
-        /**
-         * WiFi manager REST API endpoints
-         */
-        class WifiController {
-            public:
-                /**
-                 * Constructor
-                 */
-                explicit WifiController(Wifi *manager);
-                
-                /**
-                 * Registers the endpoints
-                 * @param server HTTP server handle
-                 */
-                void registerEndpoints(const httpd_handle_t &server);
+	namespace restApi {
+		/**
+		 * WiFi manager REST API endpoints
+		 */
+		class WifiController {
+			public:
+				/**
+				 * Constructor
+				 */
+				explicit WifiController(Wifi *manager);
 
-                /**
-                 * Scans the available WiFi APs
-                 * @param request HTTP request
-                 */
-                static esp_err_t scan(httpd_req_t *request);
+				/**
+				 * Registers the endpoints
+				 * @param server HTTP server handle
+				 */
+				void registerEndpoints(const httpd_handle_t &server);
 
-                /**
-                 * Returns the WiFi config
-                 * @param request HTTP request
-                 */
-                static esp_err_t getConfig(httpd_req_t *request);
+				/**
+				 * Scans the available WiFi APs
+				 * @param request HTTP request
+				 */
+				static esp_err_t scan(httpd_req_t *request);
 
-                /**
-                 * Updates the WiFi config
-                 * @param request HTTP request
-                 */
-                static esp_err_t putConfig(httpd_req_t *request);
-            private:
-                /// Retrieve WiFi config endpoint handler
-                httpd_uri_t getConfigHandler;
-                /// Update WiFi config endpoint handler
-                httpd_uri_t putConfigHandler;
-                /// Scan endpoint handler
-                httpd_uri_t scanHandler;
-        };
-    }
+				/**
+				 * Returns the WiFi config
+				 * @param request HTTP request
+				 */
+				static esp_err_t getConfig(httpd_req_t *request);
+
+				/**
+				 * Updates the WiFi config
+				 * @param request HTTP request
+				 */
+				static esp_err_t putConfig(httpd_req_t *request);
+
+			private:
+				/// Retrieve WiFi config endpoint handler
+				httpd_uri_t getConfigHandler;
+				/// Update WiFi config endpoint handler
+				httpd_uri_t putConfigHandler;
+				/// Scan endpoint handler
+				httpd_uri_t scanHandler;
+		};
+	}
 }

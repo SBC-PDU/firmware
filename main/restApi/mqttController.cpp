@@ -18,102 +18,102 @@
 using namespace sbc_pdu::restApi;
 
 MqttController::MqttController() {
-    this->getHandler = {
-        .uri = "/api/v1/mqtt",
-        .method = HTTP_GET,
-        .handler = &MqttController::get,
-        .user_ctx = nullptr,
+	this->getHandler = {
+		.uri = "/api/v1/mqtt",
+		.method = HTTP_GET,
+		.handler = &MqttController::get,
+		.user_ctx = nullptr,
 #ifdef CONFIG_HTTPD_WS_SUPPORT
-        .is_websocket = false,
-        .handle_ws_control_frames = false,
-        .supported_subprotocol = nullptr,
+		.is_websocket = false,
+		.handle_ws_control_frames = false,
+		.supported_subprotocol = nullptr,
 #endif
-    };
-    this->putHandler = {
-        .uri = "/api/v1/mqtt",
-        .method = HTTP_PUT,
-        .handler = &MqttController::put,
-        .user_ctx = nullptr,
+	};
+	this->putHandler = {
+		.uri = "/api/v1/mqtt",
+		.method = HTTP_PUT,
+		.handler = &MqttController::put,
+		.user_ctx = nullptr,
 #ifdef CONFIG_HTTPD_WS_SUPPORT
-        .is_websocket = false,
-        .handle_ws_control_frames = false,
-        .supported_subprotocol = nullptr,
+		.is_websocket = false,
+		.handle_ws_control_frames = false,
+		.supported_subprotocol = nullptr,
 #endif
-    };
+	};
 }
 
 void MqttController::registerEndpoints(const httpd_handle_t &server) {
-    httpd_register_uri_handler(server, &this->getHandler);
-    httpd_register_uri_handler(server, &this->putHandler);
+	httpd_register_uri_handler(server, &this->getHandler);
+	httpd_register_uri_handler(server, &this->putHandler);
 }
 
 esp_err_t MqttController::get(httpd_req_t *request) {
-    restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
-    if (!authenticator.authenticate(request)) {
-        return ESP_OK;
-    }
-    NvsManager nvs = NvsManager("mqtt");
-    httpd_resp_set_type(request, "application/json");
-    cJSON *root = cJSON_CreateObject();
-    std::string uri;
-    if (nvs.getString("uri", uri) != ESP_OK) {
-        uri = "";
-    }
-    cJSON_AddStringToObject(root, "uri", uri.c_str());    
-    std::string username;
-    if (nvs.getString("username", username) != ESP_OK) {
-        username = "";
-    }
-    cJSON_AddStringToObject(root, "username", username.c_str());
-    std::string password;
-    if (nvs.getString("password", password) != ESP_OK) {
-        password = "";
-    }
-    cJSON_AddStringToObject(root, "password", password.c_str());
-    const char *response = cJSON_PrintUnformatted(root);
-    httpd_resp_sendstr(request, response);
-    delete response;
-    cJSON_Delete(root);
-    return ESP_OK;
+	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
+	if (!authenticator.authenticate(request)) {
+		return ESP_OK;
+	}
+	NvsManager nvs = NvsManager("mqtt");
+	httpd_resp_set_type(request, "application/json");
+	cJSON *root = cJSON_CreateObject();
+	std::string uri;
+	if (nvs.getString("uri", uri) != ESP_OK) {
+		uri = "";
+	}
+	cJSON_AddStringToObject(root, "uri", uri.c_str());
+	std::string username;
+	if (nvs.getString("username", username) != ESP_OK) {
+		username = "";
+	}
+	cJSON_AddStringToObject(root, "username", username.c_str());
+	std::string password;
+	if (nvs.getString("password", password) != ESP_OK) {
+		password = "";
+	}
+	cJSON_AddStringToObject(root, "password", password.c_str());
+	const char *response = cJSON_PrintUnformatted(root);
+	httpd_resp_sendstr(request, response);
+	delete response;
+	cJSON_Delete(root);
+	return ESP_OK;
 }
 
 esp_err_t MqttController::put(httpd_req_t *request) {
-    restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
-    if (!authenticator.authenticate(request)) {
-        return ESP_OK;
-    }
-    cJSON *root = nullptr;
-    esp_err_t result = RestApiUtils::parseJsonRequest(request, &root);
-    if (result != ESP_OK) {
-        return result;
-    }
-    NvsManager nvs = NvsManager("mqtt");
-    cJSON *uri = cJSON_GetObjectItem(root, "uri");
-    if (uri == nullptr) {
-        RestApiUtils::createBadRequestResponse(request, "Missing \"uri\" property.");
-    }
-    if (!cJSON_IsString(uri)) {
-        RestApiUtils::createBadRequestResponse(request, "Property \"uri\" is not a string.");
-    }
-    nvs.setString("uri", std::string(uri->valuestring));
-    cJSON *username = cJSON_GetObjectItem(root, "username");
-    if (username == nullptr) {
-        RestApiUtils::createBadRequestResponse(request, "Missing \"username\" property.");
-    }
-    if (!cJSON_IsString(username)) {
-        RestApiUtils::createBadRequestResponse(request, "Property \"username\" is not a string.");
-    }
-    nvs.setString("username", std::string(username->valuestring));
-    cJSON *password = cJSON_GetObjectItem(root, "password");
-    if (password == nullptr) {
-        RestApiUtils::createBadRequestResponse(request, "Missing \"password\" property.");
-    }
-    if (!cJSON_IsString(password)) {
-        RestApiUtils::createBadRequestResponse(request, "Property \"password\" is not a string.");
-    }
-    nvs.setString("password", std::string(password->valuestring));
-    nvs.commit();
-    httpd_resp_sendstr(request, nullptr);
-    cJSON_Delete(root);
-    return ESP_OK;
+	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
+	if (!authenticator.authenticate(request)) {
+		return ESP_OK;
+	}
+	cJSON *root = nullptr;
+	esp_err_t result = RestApiUtils::parseJsonRequest(request, &root);
+	if (result != ESP_OK) {
+		return result;
+	}
+	NvsManager nvs = NvsManager("mqtt");
+	cJSON *uri = cJSON_GetObjectItem(root, "uri");
+	if (uri == nullptr) {
+		RestApiUtils::createBadRequestResponse(request, "Missing \"uri\" property.");
+	}
+	if (!cJSON_IsString(uri)) {
+		RestApiUtils::createBadRequestResponse(request, "Property \"uri\" is not a string.");
+	}
+	nvs.setString("uri", std::string(uri->valuestring));
+	cJSON *username = cJSON_GetObjectItem(root, "username");
+	if (username == nullptr) {
+		RestApiUtils::createBadRequestResponse(request, "Missing \"username\" property.");
+	}
+	if (!cJSON_IsString(username)) {
+		RestApiUtils::createBadRequestResponse(request, "Property \"username\" is not a string.");
+	}
+	nvs.setString("username", std::string(username->valuestring));
+	cJSON *password = cJSON_GetObjectItem(root, "password");
+	if (password == nullptr) {
+		RestApiUtils::createBadRequestResponse(request, "Missing \"password\" property.");
+	}
+	if (!cJSON_IsString(password)) {
+		RestApiUtils::createBadRequestResponse(request, "Property \"password\" is not a string.");
+	}
+	nvs.setString("password", std::string(password->valuestring));
+	nvs.commit();
+	httpd_resp_sendstr(request, nullptr);
+	cJSON_Delete(root);
+	return ESP_OK;
 }

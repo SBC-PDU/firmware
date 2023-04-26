@@ -18,86 +18,86 @@
 using namespace sbc_pdu::restApi;
 
 AuthController::AuthController() {
-    this->getHandler = {
-        .uri = "/api/v1/auth",
-        .method = HTTP_GET,
-        .handler = &AuthController::get,
-        .user_ctx = nullptr,
+	this->getHandler = {
+		.uri = "/api/v1/auth",
+		.method = HTTP_GET,
+		.handler = &AuthController::get,
+		.user_ctx = nullptr,
 #ifdef CONFIG_HTTPD_WS_SUPPORT
-        .is_websocket = false,
-        .handle_ws_control_frames = false,
-        .supported_subprotocol = nullptr,
+		.is_websocket = false,
+		.handle_ws_control_frames = false,
+		.supported_subprotocol = nullptr,
 #endif
-    };
-    this->putHandler = {
-        .uri = "/api/v1/auth",
-        .method = HTTP_PUT,
-        .handler = &AuthController::put,
-        .user_ctx = nullptr,
+	};
+	this->putHandler = {
+		.uri = "/api/v1/auth",
+		.method = HTTP_PUT,
+		.handler = &AuthController::put,
+		.user_ctx = nullptr,
 #ifdef CONFIG_HTTPD_WS_SUPPORT
-        .is_websocket = false,
-        .handle_ws_control_frames = false,
-        .supported_subprotocol = nullptr,
+		.is_websocket = false,
+		.handle_ws_control_frames = false,
+		.supported_subprotocol = nullptr,
 #endif
-    };
+	};
 }
 
 void AuthController::registerEndpoints(const httpd_handle_t &server) {
-    httpd_register_uri_handler(server, &this->getHandler);
-    httpd_register_uri_handler(server, &this->putHandler);
+	httpd_register_uri_handler(server, &this->getHandler);
+	httpd_register_uri_handler(server, &this->putHandler);
 }
 
 esp_err_t AuthController::get(httpd_req_t *request) {
-    restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
-    if (!authenticator.authenticate(request)) {
-        return ESP_OK;
-    }
-    httpd_resp_sendstr(request, "OK");
-    return ESP_OK;
+	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
+	if (!authenticator.authenticate(request)) {
+		return ESP_OK;
+	}
+	httpd_resp_sendstr(request, "OK");
+	return ESP_OK;
 }
 
 esp_err_t AuthController::put(httpd_req_t *request) {
-    restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
-    if (!authenticator.authenticate(request)) {
-        return ESP_OK;
-    }
-    cJSON *root = nullptr;
-    esp_err_t result = RestApiUtils::parseJsonRequest(request, &root);
-    if (result != ESP_OK) {
-        return result;
-    }
-    NvsManager nvs = NvsManager("httpCredentials");
-    cJSON *username = cJSON_GetObjectItem(root, "username");
-    if (username == nullptr) {
-        RestApiUtils::createBadRequestResponse(request, "Missing \"username\" property.");
-    }
-    if (!cJSON_IsString(username)) {
-        RestApiUtils::createBadRequestResponse(request, "Property \"username\" is not a string.");
-    }
-    nvs.setString("username", std::string(username->valuestring));
-    cJSON *oldPassword = cJSON_GetObjectItem(root, "oldPassword");
-    if (oldPassword == nullptr) {
-        RestApiUtils::createBadRequestResponse(request, "Missing \"oldPassword\" property.");
-    }
-    if (!cJSON_IsString(oldPassword)) {
-        RestApiUtils::createBadRequestResponse(request, "Property \"oldPassword\" is not a string.");
-    }
-    std::string oldPasswordString = std::string(oldPassword->valuestring);
-    std::string currentPassword;
-    nvs.getString("password", currentPassword);
-    if (oldPasswordString != currentPassword) {
-        RestApiUtils::createBadRequestResponse(request, "Incorrect current password.");
-    }
-    cJSON *newPassword = cJSON_GetObjectItem(root, "newPassword");
-    if (newPassword == nullptr) {
-        RestApiUtils::createBadRequestResponse(request, "Missing \"newPassword\" property.");
-    }
-    if (!cJSON_IsString(newPassword)) {
-        RestApiUtils::createBadRequestResponse(request, "Property \"newPassword\" is not a string.");
-    }
-    nvs.setString("password", std::string(newPassword->valuestring));
-    nvs.commit();
-    httpd_resp_sendstr(request, nullptr);
-    cJSON_Delete(root);
-    return ESP_OK;
+	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
+	if (!authenticator.authenticate(request)) {
+		return ESP_OK;
+	}
+	cJSON *root = nullptr;
+	esp_err_t result = RestApiUtils::parseJsonRequest(request, &root);
+	if (result != ESP_OK) {
+		return result;
+	}
+	NvsManager nvs = NvsManager("httpCredentials");
+	cJSON *username = cJSON_GetObjectItem(root, "username");
+	if (username == nullptr) {
+		RestApiUtils::createBadRequestResponse(request, "Missing \"username\" property.");
+	}
+	if (!cJSON_IsString(username)) {
+		RestApiUtils::createBadRequestResponse(request, "Property \"username\" is not a string.");
+	}
+	nvs.setString("username", std::string(username->valuestring));
+	cJSON *oldPassword = cJSON_GetObjectItem(root, "oldPassword");
+	if (oldPassword == nullptr) {
+		RestApiUtils::createBadRequestResponse(request, "Missing \"oldPassword\" property.");
+	}
+	if (!cJSON_IsString(oldPassword)) {
+		RestApiUtils::createBadRequestResponse(request, "Property \"oldPassword\" is not a string.");
+	}
+	std::string oldPasswordString = std::string(oldPassword->valuestring);
+	std::string currentPassword;
+	nvs.getString("password", currentPassword);
+	if (oldPasswordString != currentPassword) {
+		RestApiUtils::createBadRequestResponse(request, "Incorrect current password.");
+	}
+	cJSON *newPassword = cJSON_GetObjectItem(root, "newPassword");
+	if (newPassword == nullptr) {
+		RestApiUtils::createBadRequestResponse(request, "Missing \"newPassword\" property.");
+	}
+	if (!cJSON_IsString(newPassword)) {
+		RestApiUtils::createBadRequestResponse(request, "Property \"newPassword\" is not a string.");
+	}
+	nvs.setString("password", std::string(newPassword->valuestring));
+	nvs.commit();
+	httpd_resp_sendstr(request, nullptr);
+	cJSON_Delete(root);
+	return ESP_OK;
 }

@@ -26,14 +26,15 @@
  * Multicast DNS manager
  */
 class MulticastDns {
-    public:
-        /**
-         * Constructor
-         * @param hostnameManager Hostname manager
-         */
-        explicit MulticastDns(HostnameManager *hostnameManager);
-    private:
-        /// Hostname mananager
-        HostnameManager *hostnameManager;
+	public:
+		/**
+		 * Constructor
+		 * @param hostnameManager Hostname manager
+		 */
+		explicit MulticastDns(HostnameManager *hostnameManager);
+
+	private:
+		/// Hostname mananager
+		HostnameManager *hostnameManager;
 };
 

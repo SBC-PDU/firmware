@@ -24,12 +24,12 @@
  * Network interface utils
  */
 class InterfaceUtils {
-    public:
-        /**
-         * Converts MAC address from array of bytes to string
-         * @param buffer MAC address byte buffer
-         * @param separator Used separator (e.g. `:`)
-         * @return MAC address string
-         */
-        static std::string macToString(uint8_t buffer[6], const std::string &separator);
+	public:
+		/**
+		 * Converts MAC address from array of bytes to string
+		 * @param buffer MAC address byte buffer
+		 * @param separator Used separator (e.g. `:`)
+		 * @return MAC address string
+		 */
+		static std::string macToString(uint8_t buffer[6], const std::string &separator);
 };

@@ -29,53 +29,54 @@
 #include "utils/interfaceUtils.h"
 
 namespace sbc_pdu {
-    namespace restApi {
-        /**
-         * System information REST API endpoints
-         */
-        class SystemController {
-            public:
-                /**
-                 * Constructor
-                 */
-                explicit SystemController();
-                
-                /**
-                 * Registers the endpoints
-                 * @param server HTTP server handle
-                 */
-                void registerEndpoints(const httpd_handle_t &server);
+	namespace restApi {
+		/**
+		 * System information REST API endpoints
+		 */
+		class SystemController {
+			public:
+				/**
+				 * Constructor
+				 */
+				explicit SystemController();
 
-                /**
-                 * Returns the system information
-                 * @param request HTTP request
-                 * @return Execution status
-                 */
-                static esp_err_t getInfo(httpd_req_t *request);
+				/**
+				 * Registers the endpoints
+				 * @param server HTTP server handle
+				 */
+				void registerEndpoints(const httpd_handle_t &server);
 
-                /**
-                 * Restarts the unit
-                 * @param request HTTP request
-                 * @return Execution status
-                 */
-                static esp_err_t restart(httpd_req_t *request);
+				/**
+				 * Returns the system information
+				 * @param request HTTP request
+				 * @return Execution status
+				 */
+				static esp_err_t getInfo(httpd_req_t *request);
 
-                /**
-                 * Sets the Chip Info object to JSON response
-                 * @param root JSON root object
-                 */
-                static void setChipInfo(cJSON *root);
+				/**
+				 * Restarts the unitinsert_final_newline
+				 * @param request HTTP request
+				 * @return Execution status
+				 */
+				static esp_err_t restart(httpd_req_t *request);
 
-                /**
-                 * Sets the Network Info object to JSON response
-                 * @param root JSON root object
-                 */
-                static void setNetworkInfo(cJSON *root);
-            private:
-                /// Get system info endpoint handler
-                httpd_uri_t getInfoHandler;
-                /// Restart endpoint handler
-                httpd_uri_t restartHandler;
-        };
-    }
+				/**
+				 * Sets the Chip Info object to JSON response
+				 * @param root JSON root object
+				 */
+				static void setChipInfo(cJSON *root);
+
+				/**
+				 * Sets the Network Info object to JSON response
+				 * @param root JSON root object
+				 */
+				static void setNetworkInfo(cJSON *root);
+
+			private:
+				/// Get system info endpoint handler
+				httpd_uri_t getInfoHandler;
+				/// Restart endpoint handler
+				httpd_uri_t restartHandler;
+		};
+	}
 }

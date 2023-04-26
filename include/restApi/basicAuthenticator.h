@@ -28,44 +28,45 @@
 #include "utils/base64.h"
 
 namespace sbc_pdu {
-    namespace restApi {
-        /**
-         * HTTP Basic authenticator
-         */
-        class BasicAuthenticator {
-            public:
-                /**
-                 * Constructor
-                 */
-                explicit BasicAuthenticator();
+	namespace restApi {
+		/**
+		 * HTTP Basic authenticator
+		 */
+		class BasicAuthenticator {
+			public:
+				/**
+				 * Constructor
+				 */
+				explicit BasicAuthenticator();
 
-                /**
-                 * Returns Expected HTTP Authorization header
-                 * @return std::string Expected HTTP Authorization header
-                 */
-                std::string getExpectedAuthorizationHeader();
+				/**
+				 * Returns Expected HTTP Authorization header
+				 * @return std::string Expected HTTP Authorization header
+				 */
+				std::string getExpectedAuthorizationHeader();
 
-                /**
-                 * Authenticate the user
-                 * @param request HTTP request
-                 * @return bool Authentication status
-                 */
-                bool authenticate(httpd_req_t *request);
-                
-                /**
-                 * Creates Unauthorized HTTP Response
-                 * @param request HTTP request
-                 */
-                void createUnauthorizedResponse(httpd_req_t *request);
-            private:
-                /// Expected Authorizaton HTTP header
-                std::string expectedAuthorizationHeader;
-                ///  Username
-                std::string username;
-                /// Password
-                std::string password;
-                /// NVS manager
-                NvsManager nvs = NvsManager("httpCredentials");
-        };
-    }
+				/**
+				 * Authenticate the user
+				 * @param request HTTP request
+				 * @return bool Authentication status
+				 */
+				bool authenticate(httpd_req_t *request);
+
+				/**
+				 * Creates Unauthorized HTTP Response
+				 * @param request HTTP request
+				 */
+				void createUnauthorizedResponse(httpd_req_t *request);
+
+			private:
+				/// Expected Authorizaton HTTP header
+				std::string expectedAuthorizationHeader;
+				///  Username
+				std::string username;
+				/// Password
+				std::string password;
+				/// NVS manager
+				NvsManager nvs = NvsManager("httpCredentials");
+		};
+	}
 }

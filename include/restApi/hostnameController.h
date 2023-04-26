@@ -32,39 +32,40 @@
 #endif
 
 namespace sbc_pdu {
-    namespace restApi {
-        /**
-         * Hostname manager REST API endpoints
-         */
-        class HostnameController {
-            public:
-                /**
-                 * Constructor
-                 */
-                explicit HostnameController(HostnameManager *hostnameManager);
-                
-                /**
-                 * Registers the endpoints
-                 * @param server HTTP server handle
-                 */
-                void registerEndpoints(const httpd_handle_t &server);
+	namespace restApi {
+		/**
+		 * Hostname manager REST API endpoints
+		 */
+		class HostnameController {
+			public:
+				/**
+				 * Constructor
+				 */
+				explicit HostnameController(HostnameManager *hostnameManager);
 
-                /**
-                 * Returns the hostname
-                 * @param request HTTP request
-                 */
-                static esp_err_t get(httpd_req_t *request);
+				/**
+				 * Registers the endpoints
+				 * @param server HTTP server handle
+				 */
+				void registerEndpoints(const httpd_handle_t &server);
 
-                /**
-                 * Updates the hostname
-                 * @param request HTTP request
-                 */
-                static esp_err_t put(httpd_req_t *request);
-            private:
-                /// Retrieve hostname endpoint handler
-                httpd_uri_t getHandler;
-                /// Update hostname endpoint handler
-                httpd_uri_t putHandler;
-        };
-    }
+				/**
+				 * Returns the hostname
+				 * @param request HTTP request
+				 */
+				static esp_err_t get(httpd_req_t *request);
+
+				/**
+				 * Updates the hostname
+				 * @param request HTTP request
+				 */
+				static esp_err_t put(httpd_req_t *request);
+
+			private:
+				/// Retrieve hostname endpoint handler
+				httpd_uri_t getHandler;
+				/// Update hostname endpoint handler
+				httpd_uri_t putHandler;
+		};
+	}
 }

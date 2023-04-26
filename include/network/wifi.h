@@ -45,175 +45,167 @@
  * WiFi Access Point information
  */
 class WifiApInfo {
-    public:
-        /**
-         * Constructor
-         * @param info Info structure returned from scan 
-         * @param inUse Is in use?
-         */
-        explicit WifiApInfo(const wifi_ap_record_t &info, bool inUse = false);
-        
-        /**
-         * Is the AP in use?
-         * @return true Unit is connected to this AP.
-         * @return false Unit is not connected to this AP.
-         */
-        bool isInUse();
+	public:
+		/**
+		 * Constructor
+		 * @param info Info structure returned from scan
+		 * @param inUse Is in use?
+		 */
+		explicit WifiApInfo(const wifi_ap_record_t &info, bool inUse = false);
 
-        /**
-         * Returns auth mode
-         * @return Auth mode
-         */
-        std::string getAuthMode();
+		/**
+		 * Is the AP in use?
+		 * @return true Unit is connected to this AP.
+		 * @return false Unit is not connected to this AP.
+		 */
+		bool isInUse();
 
-        /**
-         * Returns BSSID (MAC address)
-         * @return BSSID
-         */
-        uint8_t *getBssid();
+		/**
+		 * Returns auth mode
+		 * @return Auth mode
+		 */
+		std::string getAuthMode();
 
-        /**
-         * Returns SSID
-         * @return SSID 
-         */
-        const std::string &getSsid();
+		/**
+		 * Returns BSSID (MAC address)
+		 * @return BSSID
+		 */
+		uint8_t *getBssid();
 
-        /**
-         * Returns the RSSI
-         * @return RSSI
-         */
-        int8_t getRssi();
-    private:
-        /// SSID
-        std::string ssid;
-        /// BSSID
-        uint8_t bssid[6];
-        /// Channel
-        uint8_t channel;
-        /// RSSI
-        int8_t rssi;
-        /// Auth mode
-        wifi_auth_mode_t authmode;
-        /// Is in use?
-        bool inUse;
+		/**
+		 * Returns SSID
+		 * @return SSID
+		 */
+		const std::string &getSsid();
+
+		/**
+		 * Returns the RSSI
+		 * @return RSSI
+		 */
+		int8_t getRssi();
+
+	private:
+		/// SSID
+		std::string ssid;
+		/// BSSID
+		uint8_t bssid[6];
+		/// Channel
+		uint8_t channel;
+		/// RSSI
+		int8_t rssi;
+		/// Auth mode
+		wifi_auth_mode_t authmode;
+		/// Is in use?
+		bool inUse;
 };
 
 /**
  * WiFi configuration
  */
 class WifiConfig {
-    public:
-        /**
-         * Constructor
-         */
-        WifiConfig();
+	public:
+		/**
+		 * Constructor
+		 */
+		WifiConfig();
 
-        /**
-         * Returns WiFi configuration
-         * @return WiFi configuration
-         */
-        const wifi_config_t &get();
+		/**
+		 * Returns WiFi configuration
+		 * @return WiFi configuration
+		 */
+		const wifi_config_t &get();
 
-        /**
-         * Returns pre-shared key
-         * @return Pre-shared key 
-         */
-        const std::string &getPsk();
+		/**
+		 * Returns pre-shared key
+		 * @return Pre-shared key
+		 */
+		const std::string &getPsk();
 
-        /**
-         * Returns SSID
-         * @return SSID
-         */
-        const std::string &getSsid();
-    private:
-        /**
-         * WiFi configuration
-         */
-        wifi_config_t config;
+		/**
+		 * Returns SSID
+		 * @return SSID
+		 */
+		const std::string &getSsid();
 
-        /**
-         * NVS manager
-         */
-        NvsManager nvs = NvsManager("wifi");
-
-        /**
-         * SSID
-         */
-        std::string ssid;
-
-        /**
-         * PSK
-         */
-        std::string psk;
+	private:
+		/// WiFi configuration
+		wifi_config_t config;
+		/// NVS manager
+		NvsManager nvs = NvsManager("wifi");
+		/// SSID
+		std::string ssid;
+		/// PSK
+		std::string psk;
 };
 
 /**
  * WiFi station
  */
 class Wifi {
-    public:
-        /**
-         * Constructor
-         * @param hostnameManager Hostname manager
-         */
-        explicit Wifi(HostnameManager *hostnameManager);
-        
-        /**
-         * Desctructor
-         */
-        ~Wifi();
+	public:
+		/**
+		 * Constructor
+		 * @param hostnameManager Hostname manager
+		 */
+		explicit Wifi(HostnameManager *hostnameManager);
 
-        /**
-         * Event handler
-         * @param arg Event handler argument, aside from event data
-         * @param base Event base ID
-         * @param id Event ID
-         * @param data Event data
-         */
-        static void eventHandler(void* arg, esp_event_base_t base, int32_t id, void* data);
+		/**
+		 * Desctructor
+		 */
+		~Wifi();
 
-        /**
-         * Returns the primary MAC address as string
-         * @param separator Separator (e.g. `:`)
-         * @return Formatted MAC address
-         */
-        static std::string getPrimaryMacAddress(const std::string &separator = "");
+		/**
+		 * Event handler
+		 * @param arg Event handler argument, aside from event data
+		 * @param base Event base ID
+		 * @param id Event ID
+		 * @param data Event data
+		 */
+		static void eventHandler(void* arg, esp_event_base_t base, int32_t id, void* data);
 
-        /**
-         * Scans acccess points
-         * @return Access point list 
-         */
-        std::vector<WifiApInfo> scan();
+		/**
+		 * Returns the primary MAC address as string
+		 * @param separator Separator (e.g. `:`)
+		 * @return Formatted MAC address
+		 */
+		static std::string getPrimaryMacAddress(const std::string &separator = "");
 
-        /// Auth modes
-        static std::map<wifi_auth_mode_t, std::string> authModes;
-    protected:
-        /// FreeRTOS event group to signal when we are connected
-        static EventGroupHandle_t eventGroup;
-        /// NETIF
-        static esp_netif_t *netifSta;
-        /// Reconnection retries
-        static uint8_t retries;
-        /// Logger tag
-        static constexpr const char *TAG = "WiFi STA";
-    
-    private:
-        /// WiFi configuration manager
-        WifiConfig configManager = WifiConfig();
-        /// WiFi driver config
-        wifi_config_t config;
-        /// WiFi event handler
-        esp_event_handler_instance_t eventHandlerWifiAny;
-        /// IPv4 event handler
-        esp_event_handler_instance_t eventHandlerIpGotIpv4;
-        /// IPv6 event handler
-        esp_event_handler_instance_t eventHandlerIpGotIpv6;
-        /// Hostname manager
-        HostnameManager *hostnameManager;
-        /// WiFi init config
-        wifi_init_config_t initConfig = WIFI_INIT_CONFIG_DEFAULT();
-        /// Station WiFI mode
-        wifi_mode_t mode = WIFI_MODE_STA;
-        /// Maximal reconnection retries
-        static const uint8_t maxRetries = 5;
+		/**
+		 * Scans acccess points
+		 * @return Access point list
+		 */
+		std::vector<WifiApInfo> scan();
+
+		/// Auth modes
+		static std::map<wifi_auth_mode_t, std::string> authModes;
+
+	protected:
+		/// FreeRTOS event group to signal when we are connected
+		static EventGroupHandle_t eventGroup;
+		/// NETIF
+		static esp_netif_t *netifSta;
+		/// Reconnection retries
+		static uint8_t retries;
+		/// Logger tag
+		static constexpr const char *TAG = "WiFi STA";
+
+	private:
+		/// WiFi configuration manager
+		WifiConfig configManager = WifiConfig();
+		/// WiFi driver config
+		wifi_config_t config;
+		/// WiFi event handler
+		esp_event_handler_instance_t eventHandlerWifiAny;
+		/// IPv4 event handler
+		esp_event_handler_instance_t eventHandlerIpGotIpv4;
+		/// IPv6 event handler
+		esp_event_handler_instance_t eventHandlerIpGotIpv6;
+		/// Hostname manager
+		HostnameManager *hostnameManager;
+		/// WiFi init config
+		wifi_init_config_t initConfig = WIFI_INIT_CONFIG_DEFAULT();
+		/// Station WiFI mode
+		wifi_mode_t mode = WIFI_MODE_STA;
+		/// Maximal reconnection retries
+		static const uint8_t maxRetries = 5;
 };

@@ -27,10 +27,10 @@
  * SPIFFS
  */
 class SPIFFS {
-    public:
-        /**
-         * Constructor
-         * @param basePath Base path
-         */
-        explicit SPIFFS(const std::string &basePath);
+	public:
+		/**
+		 * Constructor
+		 * @param basePath Base path
+		 */
+		explicit SPIFFS(const std::string &basePath);
 };

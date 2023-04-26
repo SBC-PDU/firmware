@@ -23,27 +23,27 @@
  * Base64
  */
 class Base64 {
-    public:
-        /**
-         * Encodes string into base64
-         * @param value String to encode
-         * @return Base64 enccoded string
-         */
-        static const std::string encode(const std::string &value) {
-            size_t n = 0;
-            size_t out = 0;
-            const unsigned char* bufferToEncode = reinterpret_cast<const unsigned char*>(value.c_str());
-            // Calculate buffer size
-            mbedtls_base64_encode(nullptr, 0, &n, bufferToEncode, value.length());
-            char *buffer = new char[n + 1];
-            if (buffer) {
-                // Encode base64 from string
-                mbedtls_base64_encode(reinterpret_cast<unsigned char*>(buffer), n, &out, bufferToEncode, value.length());
-            } else {
-                return "";
-            }
-            std::string encodedValue = std::string(buffer);
-            delete[] buffer;
-            return encodedValue;
-        }
+	public:
+		/**
+		 * Encodes string into base64
+		 * @param value String to encode
+		 * @return Base64 enccoded string
+		 */
+		static const std::string encode(const std::string &value) {
+			size_t n = 0;
+			size_t out = 0;
+			const unsigned char* bufferToEncode = reinterpret_cast<const unsigned char*>(value.c_str());
+			// Calculate buffer size
+			mbedtls_base64_encode(nullptr, 0, &n, bufferToEncode, value.length());
+			char *buffer = new char[n + 1];
+			if (buffer) {
+				// Encode base64 from string
+				mbedtls_base64_encode(reinterpret_cast<unsigned char*>(buffer), n, &out, bufferToEncode, value.length());
+			} else {
+				return "";
+			}
+			std::string encodedValue = std::string(buffer);
+			delete[] buffer;
+			return encodedValue;
+		}
 };

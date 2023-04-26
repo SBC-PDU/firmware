@@ -34,30 +34,31 @@
  * Simple Network Time Protocol client
  */
 class Ntp {
-    public:
-        /**
-         * Construct a new SNTP client instance
-         */
-        Ntp();
-        
-        /**
-         * Obtains the current time from NTP servers
-         */
-        static void obtainTime();
+	public:
+		/**
+		 * Construct a new SNTP client instance
+		 */
+		Ntp();
 
-        /**
-         * Notifies time syncchronization
-         * @param tv Time
-         */
-        static void notifySyncronization(struct timeval *tv);
+		/**
+		 * Obtains the current time from NTP servers
+		 */
+		static void obtainTime();
 
-        /// Timezones
-        static std::map<std::string, std::string> timezones;
-    private:
-        /// NVS manager
-        NvsManager nvs = NvsManager("ntp");
-        /// NTP server list
-        std::vector<std::string> servers;
-        /// Timezone
-        std::string timezone;
+		/**
+		 * Notifies time syncchronization
+		 * @param tv Time
+		 */
+		static void notifySyncronization(struct timeval *tv);
+
+		/// Timezones
+		static std::map<std::string, std::string> timezones;
+
+	private:
+		/// NVS manager
+		NvsManager nvs = NvsManager("ntp");
+		/// NTP server list
+		std::vector<std::string> servers;
+		/// Timezone
+		std::string timezone;
 };

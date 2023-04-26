@@ -28,39 +28,40 @@
 #include "utils/restApiUtils.h"
 
 namespace sbc_pdu {
-    namespace restApi {
-        /**
-         * HTTP auth manager REST API endpoints
-         */
-        class AuthController {
-            public:
-                /**
-                 * Constructor
-                 */
-                AuthController();
-                
-                /**
-                 * Registers the endpoints
-                 * @param server HTTP server handle
-                 */
-                void registerEndpoints(const httpd_handle_t &server);
+	namespace restApi {
+		/**
+		 * HTTP auth manager REST API endpoints
+		 */
+		class AuthController {
+			public:
+				/**
+				 * Constructor
+				 */
+				AuthController();
 
-                /**
-                 * Checks the HTTP auth credentials
-                 * @param request HTTP request
-                 */
-                static esp_err_t get(httpd_req_t *request);
+				/**
+				 * Registers the endpoints
+				 * @param server HTTP server handle
+				 */
+				void registerEndpoints(const httpd_handle_t &server);
 
-                /**
-                 * Updates the HTTP auth credentials
-                 * @param request HTTP request
-                 */
-                static esp_err_t put(httpd_req_t *request);
-            private:
-                /// Check HTTP auth credentials endpoint handler
-                httpd_uri_t getHandler;
-                /// Update HTTP auth credentials endpoint handler
-                httpd_uri_t putHandler;
-        };
-    }
+				/**
+				 * Checks the HTTP auth credentials
+				 * @param request HTTP request
+				 */
+				static esp_err_t get(httpd_req_t *request);
+
+				/**
+				 * Updates the HTTP auth credentials
+				 * @param request HTTP request
+				 */
+				static esp_err_t put(httpd_req_t *request);
+
+			private:
+				/// Check HTTP auth credentials endpoint handler
+				httpd_uri_t getHandler;
+				/// Update HTTP auth credentials endpoint handler
+				httpd_uri_t putHandler;
+		};
+	}
 }

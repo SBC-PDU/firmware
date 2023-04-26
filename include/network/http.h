@@ -37,55 +37,57 @@
  * REST API server context
  */
 typedef struct rest_server_context {
-    /// Base path
-    std::string basePath;
-    /// Scratch buffer
-    char scratch[SCRATCH_BUFSIZE];
+	/// Base path
+	std::string basePath;
+	/// Scratch buffer
+	char scratch[SCRATCH_BUFSIZE];
 } rest_server_context_t;
 
 /**
  * HTTP server
  */
 class HttpServer {
-    public:
-        /**
-         * Constructor
-         * @param basePath SPIFFS base path
-         */
-        explicit HttpServer(const std::string &basePath);
+	public:
+		/**
+		 * Constructor
+		 * @param basePath SPIFFS base path
+		 */
+		explicit HttpServer(const std::string &basePath);
 
-        /**
-         * Returns the HTTP server handle
-         * @return HTTP server handle
-         */
-        httpd_handle_t getHandle();
+		/**
+		 * Returns the HTTP server handle
+		 * @return HTTP server handle
+		 */
+		httpd_handle_t getHandle();
 
-        /**
-         * Frontend handler
-         * @param request HTTP request 
-         * @return Execution status
-         */
-        static esp_err_t getFrontendFiles(httpd_req_t *request);
+		/**
+		 * Frontend handler
+		 * @param request HTTP request
+		 * @return Execution status
+		 */
+		static esp_err_t getFrontendFiles(httpd_req_t *request);
 
-        /**
-         * Registers the frontend handler
-         * @param server HTTP server handle
-         */
-        void registerFrontendHandler();
+		/**
+		 * Registers the frontend handler
+		 * @param server HTTP server handle
+		 */
+		void registerFrontendHandler();
 
-        /**
-         * Set HTTP response content type according to file extension
-         * @param request HTTP request
-         * @param filePath File path
-         * @return Execution status
-         */
-        static esp_err_t setContentTypeFromFileExtension(httpd_req_t *request, const char *filePath);
-    protected:
-        /// Logger tag
-        static constexpr const char *TAG = "HTTP server";
-    private:
-        /// HTTP server handle
-        httpd_handle_t handle = nullptr;
-        /// HTTP server context
-        rest_server_context_t *context = new rest_server_context_t;
+		/**
+		 * Set HTTP response content type according to file extension
+		 * @param request HTTP request
+		 * @param filePath File path
+		 * @return Execution status
+		 */
+		static esp_err_t setContentTypeFromFileExtension(httpd_req_t *request, const char *filePath);
+
+	protected:
+		/// Logger tag
+		static constexpr const char *TAG = "HTTP server";
+
+	private:
+		/// HTTP server handle
+		httpd_handle_t handle = nullptr;
+		/// HTTP server context
+		rest_server_context_t *context = new rest_server_context_t;
 };

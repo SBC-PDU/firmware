@@ -29,39 +29,39 @@
 #include "utils/restApiUtils.h"
 
 namespace sbc_pdu {
-    namespace restApi {
-        /**
-         * NTP manager REST API endpoints
-         */
-        class NtpController {
-            public:
-                /**
-                 * Constructor
-                 */
-                NtpController();
-                
-                /**
-                 * Registers the endpoints
-                 * @param server HTTP server handle
-                 */
-                void registerEndpoints(const httpd_handle_t &server);
+	namespace restApi {
+		/**
+		 * NTP manager REST API endpoints
+		 */
+		class NtpController {
+			public:
+				/**
+				 * Constructor
+				 */
+				NtpController();
 
-                /**
-                 * Returns the NTP config
-                 * @param request HTTP request
-                 */
-                static esp_err_t get(httpd_req_t *request);
+				/**
+				 * Registers the endpoints
+				 * @param server HTTP server handle
+				 */
+				void registerEndpoints(const httpd_handle_t &server);
 
-                /**
-                 * Updates the NTP config
-                 * @param request HTTP request
-                 */
-                static esp_err_t put(httpd_req_t *request);
-            private:
-                /// Retrieve NTP config endpoint handler
-                httpd_uri_t getHandler;
-                /// Update NTP config endpoint handler
-                httpd_uri_t putHandler;
-        };
-    }
+				/**
+				 * Returns the NTP config
+				 * @param request HTTP request
+				 */
+				static esp_err_t get(httpd_req_t *request);
+
+				/**
+				 * Updates the NTP config
+				 * @param request HTTP request
+				 */
+				static esp_err_t put(httpd_req_t *request);
+			private:
+				/// Retrieve NTP config endpoint handler
+				httpd_uri_t getHandler;
+				/// Update NTP config endpoint handler
+				httpd_uri_t putHandler;
+		};
+	}
 }

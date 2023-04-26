@@ -30,43 +30,45 @@
  * I2C master
  */
 class I2C {
-    public:
-        /**
-         * Construct a new I2C master instance
-         * @param port I2C port ID
-         * @param sda SDA GPIO pin
-         * @param scl SCL GPIO pin
-         */
-        I2C(int port, gpio_num_t sda, gpio_num_t scl);
+	public:
+		/**
+		 * Construct a new I2C master instance
+		 * @param port I2C port ID
+		 * @param sda SDA GPIO pin
+		 * @param scl SCL GPIO pin
+		 */
+		I2C(int port, gpio_num_t sda, gpio_num_t scl);
 
-        /**
-         * Scans I2C slaves on the bus
-         */
-        void scan();
+		/**
+		 * Scans I2C slaves on the bus
+		 */
+		void scan();
 
-        /**
-         * Reads data from I2C slave device
-         * @param address Address
-         * @param reg Register
-         * @param buffer Buffer
-         * @param size Buffer size
-         * @return esp_err_t Execution status
-         */
-        esp_err_t read(uint8_t address, uint8_t reg, uint8_t *buffer, size_t size);
+		/**
+		 * Reads data from I2C slave device
+		 * @param address Address
+		 * @param reg Register
+		 * @param buffer Buffer
+		 * @param size Buffer size
+		 * @return esp_err_t Execution status
+		 */
+		esp_err_t read(uint8_t address, uint8_t reg, uint8_t *buffer, size_t size);
 
-        /**
-         * Writes data to I2C slave device
-         * @param address Address
-         * @param reg Register
-         * @param buffer Buffer
-         * @param size Buffer size
-         * @return esp_err_t Execution status
-         */
-        esp_err_t write(uint8_t address, uint8_t reg, uint8_t *buffer, size_t size);
-    protected:
-        /// Logger tag
-        static constexpr const char *LOG_TAG = "I2C";
-    private:
-        /// I2C port ID
-        int port;
+		/**
+		 * Writes data to I2C slave device
+		 * @param address Address
+		 * @param reg Register
+		 * @param buffer Buffer
+		 * @param size Buffer size
+		 * @return esp_err_t Execution status
+		 */
+		esp_err_t write(uint8_t address, uint8_t reg, uint8_t *buffer, size_t size);
+
+	protected:
+		/// Logger tag
+		static constexpr const char *LOG_TAG = "I2C";
+
+	private:
+		/// I2C port ID
+		int port;
 };
