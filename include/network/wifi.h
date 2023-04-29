@@ -85,6 +85,8 @@ class WifiApInfo {
 		int8_t getRssi();
 
 	private:
+		/// Logger tag
+		static constexpr const char *TAG = "WiFi AP info";
 		/// SSID
 		std::string ssid;
 		/// BSSID

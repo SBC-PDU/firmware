@@ -34,6 +34,7 @@
 #include "network/sntp.h"
 #include "network/wifi.h"
 #include "nvsManager.h"
+#include "mcp7940n.h"
 #include "restApi/authController.h"
 #include "restApi/basicAuthenticator.h"
 #include "restApi/hostnameController.h"
@@ -55,8 +56,7 @@ Mqtt *mqtt = nullptr;
 std::map<uint8_t, Output*> outputs = {};
 
 /**
- * @brief MQTT connect callback
- *
+ * MQTT connect callback
  * @param client MQTT client
  * @param base MQTT event base
  * @param event MQTT event
@@ -66,8 +66,7 @@ void mqttConnectCallback(Mqtt* client, esp_event_base_t base, esp_mqtt_event_han
 }
 
 /**
- * @brief MQTT receive message callback
- *
+ * MQTT receive message callback
  * @param event NQTT event
  */
 void mqttReceiveCallback(esp_mqtt_event_handle_t event) {
@@ -83,8 +82,7 @@ void mqttReceiveCallback(esp_mqtt_event_handle_t event) {
 }
 
 /**
- * @brief Alert GPIO interrupt handler
- *
+ * Alert GPIO interrupt handler
  * @param arg Interrupt argument - PDU output ID
  */
 static void IRAM_ATTR gpioAlertHandler(void* arg) {
@@ -94,8 +92,7 @@ static void IRAM_ATTR gpioAlertHandler(void* arg) {
 
 
 /**
- * @brief Alert task - sends MQTT message when alert occurres
- *
+ * Alert task - sends MQTT message when alert occurres
  * @param arg Task argument
  */
 static void alertTask(void* arg) {
@@ -112,7 +109,7 @@ static void alertTask(void* arg) {
 
 
 /**
- * @brief Initializes HTTP server
+ * Initializes HTTP server
  */
 void initHttp(Wifi *wifi, HostnameManager *hostnameManager) {
 	std::string basePath = "/spiffs";
@@ -138,7 +135,7 @@ void initHttp(Wifi *wifi, HostnameManager *hostnameManager) {
 }
 
 /**
- * @brief Initializes MQTT client
+ * Initializes MQTT client
  */
 void initMqtt() {
 	MqttConfig mqttConfig = MqttConfig();
@@ -185,12 +182,10 @@ void initNvs() {
 }
 
 /**
- * @brief Initializes outputs
+ * Initializes outputs
+ * @param i2c I2C master driver
  */
-void initOutputs() {
-	gpio_install_isr_service(0);
-	I2C *i2c = new I2C(I2C_NUM_0, GPIO_NUM_4, GPIO_NUM_5);
-	i2c->scan();
+void initOutputs(I2C *i2c) {
 	Ina3221 *ina3221 = new Ina3221(i2c, INA3221_ADDRESS_GND);
 	ina3221->writeConfiguration(
 		INA3221_MODE_SHUNT_AND_BUS_CONTINUOUS |
@@ -211,7 +206,7 @@ void initOutputs() {
 }
 
 /**
- * @brief Main function
+ * Main function
  */
 void app_main() {
 	// Initialize TCP/IP network interface
@@ -220,12 +215,18 @@ void app_main() {
 	ESP_ERROR_CHECK(esp_event_loop_create_default());
 	ESP_ERROR_CHECK(esp_tls_init_global_ca_store());
 	initNvs();
-	initOutputs();
+	// Install GPIO ISR service
+	gpio_install_isr_service(0);
+	I2C *i2c = new I2C(I2C_NUM_0, GPIO_NUM_4, GPIO_NUM_5);
+	i2c->scan();
+	Mcp7940n *rtc = new Mcp7940n(i2c);
+	rtc->enableOscillator();
+	initOutputs(i2c);
 	HostnameManager *hostname = new HostnameManager();
-	//Ethernet ethernet = Ethernet(hostname);
+	Ethernet ethernet = Ethernet(hostname);
 	Wifi *wifi = new Wifi(hostname);
 	MulticastDns mDns = MulticastDns(hostname);
-	Ntp();
+	Ntp ntp = Ntp(rtc);
 	initHttp(wifi, hostname);
 	initMqtt();
 	while (1) {

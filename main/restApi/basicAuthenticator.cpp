@@ -17,8 +17,6 @@
 
 using namespace sbc_pdu::restApi;
 
-static const char *TAG = "HTTP Auth";
-
 BasicAuthenticator::BasicAuthenticator() {
 	this->nvs.getString("username", this->username);
 	this->nvs.getString("password", this->password);

@@ -43,7 +43,7 @@ bool WifiApInfo::isInUse() {
 std::string WifiApInfo::getAuthMode() {
 	auto mode = Wifi::authModes.find(this->authmode);
 	if (mode == Wifi::authModes.end()) {
-		ESP_LOGE("WiFi", "Unknown auth mode: %d", static_cast<int>(this->authmode));
+		ESP_LOGE(TAG, "Unknown auth mode: %d", static_cast<int>(this->authmode));
 		return "unknown";
 	}
 	return mode->second;

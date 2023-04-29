@@ -19,12 +19,13 @@
 esp_netif_t *Ethernet::netif = nullptr;
 
 Ethernet::Ethernet(HostnameManager *hostnameManager): hostnameManager(hostnameManager) {
-	ESP_ERROR_CHECK(gpio_install_isr_service(0));
 	Ethernet::netif = esp_netif_new(&this->netifConfig);
 	ESP_ERROR_CHECK_WITHOUT_ABORT(esp_netif_set_hostname(Ethernet::netif, this->hostnameManager->get().c_str()));
 
 	this->emacConfig.smi_mdc_gpio_num = GPIO_NUM_23;
 	this->emacConfig.smi_mdio_gpio_num = GPIO_NUM_18;
+	this->emacConfig.clock_config.rmii.clock_mode = EMAC_CLK_OUT;
+	this->emacConfig.clock_config.rmii.clock_gpio = EMAC_CLK_OUT_GPIO;
 	this->mac = esp_eth_mac_new_esp32(&this->emacConfig, &this->macConfig);
 	this->phyConfig.phy_addr = 0;
 	this->phyConfig.reset_gpio_num = GPIO_NUM_17;

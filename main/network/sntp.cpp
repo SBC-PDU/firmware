@@ -17,7 +17,7 @@
  */
 #include "network/sntp.h"
 
-static const char *TAG = "NTP";
+Mcp7940n *Ntp::rtc = nullptr;
 
 std::map<std::string, std::string> Ntp::timezones = {
 	{"ACST", "ACST-9:30"},
@@ -52,6 +52,9 @@ std::map<std::string, std::string> Ntp::timezones = {
 
 void Ntp::notifySyncronization(struct timeval *tv) {
 	ESP_LOGI(TAG, "Notification of a time synchronization event");
+	time_t epochTime = tv->tv_sec;
+	struct tm *timeinfo = localtime(&epochTime);
+	Ntp::rtc->setTime(timeinfo);
 }
 
 void Ntp::obtainTime() {
@@ -67,14 +70,33 @@ void Ntp::obtainTime() {
 	localtime_r(&now, &timeinfo);
 }
 
-Ntp::Ntp() {
+Ntp::Ntp(Mcp7940n *rtc) {
+	Ntp::rtc = rtc;
 	time_t now;
 	struct tm timeinfo;
+	char buffer[64];
 	time(&now);
 	localtime_r(&now, &timeinfo);
 
 	ESP_LOGI(TAG, "Initializing SNTP");
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
+
+	// Set timezone to CET/CEST and print local time
+	std::string convertedTimezone;
+	this->nvs.getString("timezone", convertedTimezone);
+	auto timezone = Ntp::timezones.find(convertedTimezone);
+	if (timezone != Ntp::timezones.end()) {
+		this->timezone = timezone->second;
+	} else {
+		this->timezone = "UTC";
+	}
+	ESP_LOGI(TAG, "Timezone: %s - %s", convertedTimezone.c_str(), this->timezone.c_str());
+	setenv("TZ", this->timezone.c_str(), 1);
+	tzset();
+	localtime_r(&now, &timeinfo);
+	strftime(buffer, sizeof(buffer), "%c", &timeinfo);
+	ESP_LOGI(TAG, "The current date/time is: %s", buffer);
+
 	uint8_t serverCount = 2;
 	this->nvs.get("servers", serverCount);
 	ESP_LOGI(TAG, "Found %d servers", serverCount);
@@ -93,30 +115,20 @@ Ntp::Ntp() {
 	sntp_set_sync_mode(SNTP_SYNC_MODE_SMOOTH);
 	sntp_init();
 
-	// Is time set? If not, tm_year will be (1970 - 1900).
-	if (timeinfo.tm_year < (2021 - 1900)) {
+	if (rtc != nullptr && timeinfo.tm_year < (2023 - 1900)) {
+		ESP_LOGI(TAG, "Time is not set yet. Getting time from RTC.");
+		rtc->getTime(&timeinfo);
+		Ntp::obtainTime();
+		time(&now);
+	} else if (timeinfo.tm_year < (2023 - 1900)) {
 		ESP_LOGI(TAG, "Time is not set yet. Connecting to WiFi and getting time over NTP.");
 		Ntp::obtainTime();
 		time(&now);
 	}
 
-	char strftime_buf[64];
-
-	// Set timezone to CET/CEST and print local time
-	std::string convertedTimezone;
-	this->nvs.getString("timezone", convertedTimezone);
-	auto timezone = Ntp::timezones.find(convertedTimezone);
-	if (timezone != Ntp::timezones.end()) {
-		this->timezone = timezone->second;
-	} else {
-		this->timezone = "UTC";
-	}
-	ESP_LOGI(TAG, "Timezone: %s - %s", convertedTimezone.c_str(), this->timezone.c_str());
-	setenv("TZ", this->timezone.c_str(), 1);
-	tzset();
 	localtime_r(&now, &timeinfo);
-	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-	ESP_LOGI(TAG, "The current date/time is: %s", strftime_buf);
+	strftime(buffer, sizeof(buffer), "%c", &timeinfo);
+	ESP_LOGI(TAG, "The current date/time is: %s", buffer);
 
 	if (sntp_get_sync_mode() == SNTP_SYNC_MODE_SMOOTH) {
 		struct timeval outdelta;

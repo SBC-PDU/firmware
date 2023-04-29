@@ -15,28 +15,30 @@
  */
 #pragma once
 
-#include <esp_err.h>
-#include <esp_log.h>
-#include <mdns.h>
-#include <lwip/apps/netbiosns.h>
+#include <string>
 
-#include "network/hostname.h"
+#include <mbedtls/base64.h>
 
 /**
- * Multicast DNS manager
+ * Binary coded decimal (BCD) utils
  */
-class MulticastDns {
+class Bcd {
 	public:
 		/**
-		 * Constructor
-		 * @param hostnameManager Hostname manager
+		 * Converts BCD to binary number
+		 * @param bcd BCD number
+		 * @return Binary number
 		 */
-		explicit MulticastDns(HostnameManager *hostnameManager);
+		static inline uint16_t bcd2bin(uint8_t bcd) {
+			return ((bcd) & 0x0f) + ((bcd) >> 4) * 10;
+		}
 
-	private:
-		/// Logger tag
-		static constexpr const char *TAG = "mDNS";
-		/// Hostname mananager
-		HostnameManager *hostnameManager;
+		/**
+		 * Converts binary number to BCD
+		 * @param bin Binary number
+		 * @return BCD number
+		 */
+		static inline uint8_t bin2bcd(uint16_t bin) {
+			return (((bin) / 10) << 4) + (bin) % 10;
+		}
 };
-

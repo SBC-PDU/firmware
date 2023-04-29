@@ -59,6 +59,8 @@ namespace sbc_pdu {
 				void createUnauthorizedResponse(httpd_req_t *request);
 
 			private:
+				/// Logger tag
+				static constexpr const char *TAG = "HTTP auth";
 				/// Expected Authorizaton HTTP header
 				std::string expectedAuthorizationHeader;
 				///  Username

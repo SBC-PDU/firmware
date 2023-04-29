@@ -29,6 +29,7 @@
 #include <esp_sntp.h>
 
 #include "nvsManager.h"
+#include "mcp7940n.h"
 
 /**
  * Simple Network Time Protocol client
@@ -37,8 +38,9 @@ class Ntp {
 	public:
 		/**
 		 * Construct a new SNTP client instance
+		 * @param rtc MCP7940N RTC instance
 		 */
-		Ntp();
+		explicit Ntp(Mcp7940n *rtc);
 
 		/**
 		 * Obtains the current time from NTP servers
@@ -55,8 +57,12 @@ class Ntp {
 		static std::map<std::string, std::string> timezones;
 
 	private:
+		/// Logger tag
+		static constexpr const char *TAG = "NTP";
 		/// NVS manager
 		NvsManager nvs = NvsManager("ntp");
+		/// MCP7940N RTC instance
+		static Mcp7940n *rtc;
 		/// NTP server list
 		std::vector<std::string> servers;
 		/// Timezone

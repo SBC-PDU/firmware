@@ -194,6 +194,8 @@ class Mqtt {
 		static esp_mqtt_client_handle_t handle;
 
 	private:
+		/// Logger tag
+		static constexpr const char *TAG = "MQTT";
 		/// MQTT client configuration manager
 		MqttConfig config;
 		/// On connect callback
