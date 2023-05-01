@@ -57,10 +57,11 @@ bool BasicAuthenticator::authenticate(httpd_req_t *request) {
 }
 
 void BasicAuthenticator::createUnauthorizedResponse(httpd_req_t *request) {
+	httpd_resp_set_status(request, "401 Unauthorized");
 	httpd_resp_set_type(request, "text/plain");
 	httpd_resp_set_hdr(request, "Connection", "keep-alive");
 	httpd_resp_set_hdr(request, "WWW-Authenticate", "Basic realm=\"SBC-PDU\"");
-	httpd_resp_send_err(request, HTTPD_401_UNAUTHORIZED, "Unauthorized");
+	httpd_resp_sendstr(request, "Unauthorized");
 }
 
 std::string BasicAuthenticator::getExpectedAuthorizationHeader() {

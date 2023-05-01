@@ -52,6 +52,7 @@ esp_err_t AuthController::get(httpd_req_t *request) {
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
 	}
+	httpd_resp_set_type(request, "text/plain");
 	httpd_resp_sendstr(request, "OK");
 	return ESP_OK;
 }

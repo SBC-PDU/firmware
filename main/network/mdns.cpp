@@ -15,8 +15,6 @@
  */
 #include "network/mdns.h"
 
-const char TAG[] = "mDNS";
-
 MulticastDns::MulticastDns(HostnameManager *hostnameManager): hostnameManager(hostnameManager) {
 	esp_err_t result = mdns_init();
 	if (result != ESP_OK) {
