@@ -30,3 +30,15 @@ build_esp-idf:
   needs:
     - job: build_frontend
       artifacts: true
+
+build_platformio:
+  stage: build
+  image: python:3
+  before_script:
+    - pip install -U platformio
+    - pio pkg update
+  script:
+    - pio run
+  needs:
+    - job: build_frontend
+      artifacts: true
