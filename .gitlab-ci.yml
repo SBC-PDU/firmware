@@ -11,16 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-root = true
 
-# Unix-style newlines with a newline ending every file
-[*]
-end_of_line = lf
-insert_final_newline = true
-trim_trailing_whitespace = true
-charset = utf-8
-indent_style = tab
+build_frontend:
+  image: registry.gitlab.com/sbc-pdu/central-management/frontend:testing
+  stage: build
+  script:
+    - mkdir -p webapp/dist
+  artifacts:
+    paths:
+      - webapp/dist
+    expire_in: 1 week
 
-[.gitlab-ci.yml]
-indent_style = space
-indent_size = 2
+build_esp-idf:
+  stage: build
+  image: espressif/idf:release-v5.0
+  script:
+    - idf.py build
+  needs:
+    - job: build_frontend
+      artifacts: true
