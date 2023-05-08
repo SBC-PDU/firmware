@@ -25,6 +25,7 @@
 #include <cJSON.h>
 
 #include "restApi/basicAuthenticator.h"
+#include "restApi/cors.h"
 #include "utils/restApiUtils.h"
 
 namespace sbc_pdu {

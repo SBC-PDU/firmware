@@ -127,6 +127,7 @@ void SystemController::setNetworkInfo(cJSON *root) {
 }
 
 esp_err_t SystemController::getInfo(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
@@ -154,6 +155,7 @@ esp_err_t SystemController::getInfo(httpd_req_t *request) {
 }
 
 esp_err_t SystemController::restart(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;

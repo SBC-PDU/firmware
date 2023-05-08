@@ -48,6 +48,7 @@ void AuthController::registerEndpoints(const httpd_handle_t &server) {
 }
 
 esp_err_t AuthController::get(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
@@ -58,6 +59,7 @@ esp_err_t AuthController::get(httpd_req_t *request) {
 }
 
 esp_err_t AuthController::put(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
@@ -67,37 +69,47 @@ esp_err_t AuthController::put(httpd_req_t *request) {
 	if (result != ESP_OK) {
 		return result;
 	}
+	bool valid = true;
 	NvsManager nvs = NvsManager("httpCredentials");
 	cJSON *username = cJSON_GetObjectItem(root, "username");
 	if (username == nullptr) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Missing \"username\" property.");
 	}
 	if (!cJSON_IsString(username)) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"username\" is not a string.");
 	}
-	nvs.setString("username", std::string(username->valuestring));
 	cJSON *oldPassword = cJSON_GetObjectItem(root, "oldPassword");
 	if (oldPassword == nullptr) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Missing \"oldPassword\" property.");
 	}
 	if (!cJSON_IsString(oldPassword)) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"oldPassword\" is not a string.");
 	}
 	std::string oldPasswordString = std::string(oldPassword->valuestring);
 	std::string currentPassword;
 	nvs.getString("password", currentPassword);
 	if (oldPasswordString != currentPassword) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Incorrect current password.");
 	}
 	cJSON *newPassword = cJSON_GetObjectItem(root, "newPassword");
 	if (newPassword == nullptr) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Missing \"newPassword\" property.");
 	}
 	if (!cJSON_IsString(newPassword)) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"newPassword\" is not a string.");
 	}
-	nvs.setString("password", std::string(newPassword->valuestring));
-	nvs.commit();
+	if (valid) {
+		nvs.setString("username", std::string(username->valuestring));
+		nvs.setString("password", std::string(newPassword->valuestring));
+		nvs.commit();
+	}
 	httpd_resp_sendstr(request, nullptr);
 	cJSON_Delete(root);
 	return ESP_OK;

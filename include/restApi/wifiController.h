@@ -25,6 +25,7 @@
 
 #include "network/wifi.h"
 #include "restApi/basicAuthenticator.h"
+#include "restApi/cors.h"
 #include "utils/interfaceUtils.h"
 #include "utils/restApiUtils.h"
 

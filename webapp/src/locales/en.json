@@ -1,0 +1,265 @@
+{
+	"$vuetify": {
+		"badge": "Badge",
+		"calendar": {
+			"moreEvents": "{0} more"
+		},
+		"carousel": {
+			"ariaLabel": {
+				"delimiter": "Carousel slide {0} of {1}"
+			},
+			"next": "Next visual",
+			"prev": "Previous visual"
+		},
+		"close": "Close",
+		"dataFooter": {
+			"firstPage": "First page",
+			"itemsPerPageAll": "All",
+			"itemsPerPageText": "Items per page:",
+			"lastPage": "Last page",
+			"nextPage": "Next page",
+			"pageText": "{0}-{1} of {2}",
+			"prevPage": "Previous page"
+		},
+		"dataIterator": {
+			"loadingText": "Loading items...",
+			"noResultsText": "No matching records found"
+		},
+		"dataTable": {
+			"ariaLabel": {
+				"activateAscending": "Activate to sort ascending.",
+				"activateDescending": "Activate to sort descending.",
+				"activateNone": "Activate to remove sorting.",
+				"sortAscending": "Sorted ascending.",
+				"sortDescending": "Sorted descending.",
+				"sortNone": "Not sorted."
+			},
+			"itemsPerPageText": "Rows per page:",
+			"sortBy": "Sort by"
+		},
+		"datePicker": {
+			"itemsSelected": "{0} selected",
+			"nextMonthAriaLabel": "Next month",
+			"nextYearAriaLabel": "Next year",
+			"prevMonthAriaLabel": "Previous month",
+			"prevYearAriaLabel": "Previous year"
+		},
+		"fileInput": {
+			"counter": "{0} files",
+			"counterSize": "{0} files ({1} in total)"
+		},
+		"input": {
+			"appendAction": "{0} appended action",
+			"clear": "Clear {0}",
+			"prependAction": "{0} prepended action"
+		},
+		"noDataText": "No data available",
+		"pagination": {
+			"ariaLabel": {
+				"currentPage": "Page {0}, Current page",
+				"first": "First page",
+				"last": "Last page",
+				"next": "Next page",
+				"page": "Go to page {0}",
+				"previous": "Previous page",
+				"root": "Pagination Navigation"
+			}
+		},
+		"rating": {
+			"ariaLabel": {
+				"item": "Rating {0} of {1}"
+			}
+		},
+		"timePicker": {
+			"am": "AM",
+			"pm": "PM"
+		}
+	},
+	"core": {
+		"actions": {
+			"edit": "Edit"
+		},
+		"config": {
+			"title": "Configuration",
+			"auth": {
+				"title": "Authentication configuration",
+				"sidebar": "Autentication",
+				"fields": {
+					"username": "Username",
+					"oldPassword": "Current password",
+					"newPassword": "New password"
+				},
+				"messages": {
+					"emptyUsername": "Please enter your new username.",
+					"emptyOldPassword": "Please enter your current password.",
+					"emptyNewPassword": "Please enter your new password.",
+					"incorrectOldPassword": "Incorrect current password.",
+					"success": "Authentication configuration has been successfully saved.",
+					"error": "Authentication configuration could not be saved."
+				}
+			},
+			"hostname": {
+				"title": "Hostname configuration",
+				"sidebar": "Hostname",
+				"fields": {
+					"hostname": "Hostname"
+				},
+				"messages": {
+					"emptyHostname": "Please enter new hostname.",
+					"success": "Hostname configuration has been successfully saved.",
+					"error": "Hostname configuration could not be saved."
+				}
+			},
+			"mqtt": {
+				"title": "MQTT configuration",
+				"sidebar": "MQTT",
+				"fields": {
+					"uri": "MQTT broker address",
+					"username": "Username",
+					"password": "Password"
+				},
+				"messages": {
+					"emptyUri": "Please enter MQTT broker address.",
+					"emptyUsername": "Please enter username.",
+					"emptyPassword": "Please enter password.",
+					"success": "MQTT configuration has been successfully saved.",
+					"error": "MQTT configuration could not be saved."
+				}
+			},
+			"ntp": {
+				"title": "NTP configuration",
+				"sidebar": "NTP",
+				"fields": {
+					"server": "NTP server address",
+					"timezone": "Timezone"
+				},
+				"messages": {
+					"emptyServer": "Please enter NTP server address.",
+					"emptyTimezone": "Please select timezone.",
+					"success": "NTP configuration has been successfully saved.",
+					"error": "NTP configuration could not be saved."
+				}
+			},
+			"wifi": {
+				"title": "WiFi configuration",
+				"sidebar": "WiFi",
+				"fields": {
+					"authMode": "Authentication mode",
+					"ssid": "SSID",
+					"psk": "Password"
+				},
+				"messages": {
+					"emptyAuthMode": "Please select authentication mode.",
+					"emptySsid": "Please enter SSID.",
+					"emptyPsk": "Please enter password.",
+					"success": "WiFi configuration has been successfully saved.",
+					"error": "WiFi configuration could not be saved."
+				}
+			}
+		},
+		"dashboard": {
+			"title": "Dashboard",
+			"outputs": {
+				"fields": {
+					"alert": "Alert",
+					"alertValues": {
+						"true": "Yes",
+						"false": "No"
+					},
+					"index": "Index",
+					"state": "State",
+					"current": "Current",
+					"voltage": "Voltage",
+					"power": "Power"
+				},
+				"reload": "Reload",
+				"messages": {
+					"success": {
+						"switchedOn": "Output #{index} has been successfully switched on.",
+						"switchedOff": "Output #{index} has been successfully switched off."
+					},
+					"error": {
+						"switchedOn": "Output #{index} could not be switched on.",
+						"switchedOff": "Output #{index} could not be switched off.",
+						"load": "Output information could not be fetched."
+					}
+				}
+			}
+		},
+		"error": {
+			"404": {
+				"title": "Page not found",
+				"header": "Error 404",
+				"message": "The page you requested could not be found. It is possible that the address is incorrect, or that the page no longer exists. Please use a search engine to find what you are looking for."
+			}
+		},
+		"locales": {
+			"cs": "Czech",
+			"en": "English"
+		},
+		"messages": {
+			"localeChanged": "Localization has been successfully changed to {lang}."
+		},
+		"sign": {
+			"in": {
+				"title": "Sign in",
+				"button": "Sign in",
+				"form": {
+					"username": "Username",
+					"password": "Password"
+				},
+				"messages": {
+					"emptyUsername": "Please enter your username.",
+					"emptyPassword": "Please enter your password.",
+					"success": "You have been successfully signed in.",
+					"invalidCredentials": "Invalid e-mail or password.",
+					"error": "An error occurred while signing in."
+				}
+			},
+			"out": {
+				"title": "Sign out",
+				"message": "You have been successfully signed out."
+			}
+		},
+		"system": {
+			"info": {
+				"title": "System information",
+				"chip": {
+					"title": "Chip information",
+					"model": "Model",
+					"revision": "Revision"
+				},
+				"network": {
+					"title": "Information about network interface \"{name}\"",
+					"macAddress": "MAC address",
+					"ipv4": {
+						"title": "IPv4",
+						"address": "Address",
+						"netmask": "Netmask",
+						"gateway": "Gateway"
+					},
+					"ipv6": {
+						"title": "IPv6"
+					},
+					"dns": {
+						"title": "DNS servers"
+					},
+					"hostname": "Hostname",
+					"isUp": "Is up"
+				},
+				"heap": {
+					"title": "Heap information",
+					"free": "Free heap",
+					"total": "Total heap"
+				},
+				"firmware": {
+					"title": "Firmware information",
+					"version": "Version",
+					"idfVersion": "ESP-IDF version"
+				},
+				"uptime": "Uptime"
+			}
+		},
+		"title": "SBC PDU administration"
+	}
+}

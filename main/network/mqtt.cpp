@@ -15,8 +15,6 @@
  */
 #include "network/mqtt.h"
 
-static const char *TAG = "MQTT";
-
 MqttLastWillAndTestament::MqttLastWillAndTestament(const std::string &topic, const std::string &message, const int qos, const bool retain): topic(topic), message(message), qos(qos), retain(retain) {}
 
 const std::string &MqttLastWillAndTestament::getTopic() {
@@ -63,12 +61,6 @@ void MqttConfig::setLastWillAndTestament(MqttLastWillAndTestament *lwt) {
 	this->config.session.last_will.msg_len = lwt->getMessage().length();
 	this->config.session.last_will.qos = lwt->getQos();
 	this->config.session.last_will.retain = lwt->getRetain();
-}
-
-static void inline log_error_if_nonzero(const char *message, int error_code) {
-	if (error_code != 0) {
-		ESP_LOGE(TAG, "Last error %s: 0x%x", message, error_code);
-	}
 }
 
 std::map<std::string, Mqtt::subscribe_callback_t> Mqtt::callbacks = std::map<std::string, Mqtt::subscribe_callback_t>();
@@ -142,9 +134,9 @@ void Mqtt::eventHandler(void *handler_args, esp_event_base_t base, int32_t event
 		case MQTT_EVENT_ERROR:
 			ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
 			if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
-				log_error_if_nonzero("reported from esp-tls", event->error_handle->esp_tls_last_esp_err);
-				log_error_if_nonzero("reported from tls stack", event->error_handle->esp_tls_stack_err);
-				log_error_if_nonzero("captured as transport's socket errno",  event->error_handle->esp_transport_sock_errno);
+				Mqtt::logErrorIfNonzero("reported from esp-tls", event->error_handle->esp_tls_last_esp_err);
+				Mqtt::logErrorIfNonzero("reported from tls stack", event->error_handle->esp_tls_stack_err);
+				Mqtt::logErrorIfNonzero("captured as transport's socket errno",  event->error_handle->esp_transport_sock_errno);
 				ESP_LOGE(TAG, "Last errno string (%s)", strerror(event->error_handle->esp_transport_sock_errno));
 			}
 			break;

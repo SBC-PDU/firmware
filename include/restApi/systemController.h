@@ -26,6 +26,7 @@
 
 #include "network/wifi.h"
 #include "restApi/basicAuthenticator.h"
+#include "restApi/cors.h"
 #include "utils/interfaceUtils.h"
 
 namespace sbc_pdu {

@@ -48,6 +48,7 @@ void NtpController::registerEndpoints(const httpd_handle_t &server) {
 }
 
 esp_err_t NtpController::get(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
@@ -82,6 +83,7 @@ esp_err_t NtpController::get(httpd_req_t *request) {
 }
 
 esp_err_t NtpController::put(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
@@ -91,52 +93,67 @@ esp_err_t NtpController::put(httpd_req_t *request) {
 	if (result != ESP_OK) {
 		return result;
 	}
+	bool valid = true;
 	NvsManager nvs = NvsManager("ntp");
 	cJSON *servers = cJSON_GetObjectItem(root, "servers");
 	if (servers == nullptr) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Missing \"servers\" property.");
 	}
 	if (!cJSON_IsArray(servers)) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"servers\" is not an array.");
 	}
 	int serversSize = cJSON_GetArraySize(servers);
 	if (serversSize == 0) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"servers\" is an empty array.");
 	}
 	if (serversSize > 2) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Array \"servers\" is longer than 2 entries.");
 	}
-	// Remove old servers
 	uint8_t currentServers = 2;
 	nvs.get("servers", currentServers);
-	for (uint8_t i = serversSize; i < currentServers; ++i) {
-		std::string server;
-		std::string key = "server";
-		key.push_back('0' + i);
-		nvs.remove(key);
-	}
-	// Set new servers
+	// Validate new servers
 	for (int i = 0; i < serversSize; ++i) {
 		cJSON *server = cJSON_GetArrayItem(servers, i);
 		if (!cJSON_IsString(server)) {
+			valid = false;
 			RestApiUtils::createBadRequestResponse(request, "Property \"servers\" is not array of strings.");
 		}
-		std::string key = "server";
-		key.push_back('0' + i);
-		nvs.setString(key, std::string(server->valuestring));
 	}
 	cJSON *timezone = cJSON_GetObjectItem(root, "timezone");
 	if (timezone == nullptr) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Missing \"timezone\" property.");
 	}
 	if (!cJSON_IsString(timezone)) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"timezone\" is not a string.");
 	}
 	if (Ntp::timezones.find(std::string(timezone->valuestring)) == Ntp::timezones.end()) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"timezone\" is not a valid timezone.");
 	}
-	nvs.setString("timezone", std::string(timezone->valuestring));
-	nvs.commit();
+	if (valid) {
+		// Remove old servers
+		for (uint8_t i = serversSize; i < currentServers; ++i) {
+			std::string server;
+			std::string key = "server";
+			key.push_back('0' + i);
+			nvs.remove(key);
+		}
+		// Set new servers
+		for (int i = 0; i < serversSize; ++i) {
+			cJSON *server = cJSON_GetArrayItem(servers, i);
+			std::string key = "server";
+			key.push_back('0' + i);
+			nvs.setString(key, std::string(server->valuestring));
+		}
+		nvs.setString("timezone", std::string(timezone->valuestring));
+		nvs.commit();
+	}
 	httpd_resp_sendstr(request, nullptr);
 	cJSON_Delete(root);
 	return ESP_OK;

@@ -16,7 +16,7 @@
 #include "network/wifi.h"
 
 std::map<wifi_auth_mode_t, std::string> Wifi::authModes = {
-	{WIFI_AUTH_OPEN, "open"},
+	{WIFI_AUTH_OPEN, "Open"},
 	{WIFI_AUTH_WEP, "WEP"},
 	{WIFI_AUTH_WPA_PSK, "WPA-Personal"},
 	{WIFI_AUTH_WPA2_PSK, "WPA2-Personal"},

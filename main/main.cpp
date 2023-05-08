@@ -46,6 +46,9 @@
 #include "output.h"
 #include "spiffs.h"
 
+/// HW revision
+#define REVISION 3
+
 extern "C" void app_main();
 
 /// @brief Alert queue
@@ -132,6 +135,7 @@ void initHttp(Wifi *wifi, HostnameManager *hostnameManager) {
 	restApi::OutputsController outputsController = restApi::OutputsController(&outputs);
 	outputsController.registerEndpoints(httpdHandle);
 	httpServer.registerFrontendHandler();
+	httpServer.registerCorsHandler();
 }
 
 /**
@@ -187,17 +191,33 @@ void initNvs() {
  */
 void initOutputs(I2C *i2c) {
 	Ina3221 *ina3221 = new Ina3221(i2c, INA3221_ADDRESS_GND);
-	ina3221->writeConfiguration(
-		INA3221_MODE_SHUNT_AND_BUS_CONTINUOUS |
-		INA3221_SHUNT_CT_8244 |
-		INA3221_BUS_CT_8244 |
-		INA3221_AVG_1024 |
-		INA3221_CHANNEL_1_ENABLE |
-		INA3221_CHANNEL_2_DISABLE |
-		INA3221_CHANNEL_3_ENABLE
-	);
-	outputs.insert({1, new Output(ina3221, INA3221_CHANNEL_1, GPIO_NUM_32, GPIO_NUM_35, 1)});
-	outputs.insert({2, new Output(ina3221, INA3221_CHANNEL_3, GPIO_NUM_33, GPIO_NUM_34, 2)});
+	#if REVISION == 1
+		ina3221->writeConfiguration(
+			INA3221_MODE_SHUNT_AND_BUS_CONTINUOUS |
+			INA3221_SHUNT_CT_8244 |
+			INA3221_BUS_CT_8244 |
+			INA3221_AVG_1024 |
+			INA3221_CHANNEL_1_ENABLE |
+			INA3221_CHANNEL_2_DISABLE |
+			INA3221_CHANNEL_3_ENABLE
+		);
+		outputs.insert({1, new Output(ina3221, INA3221_CHANNEL_1, GPIO_NUM_32, GPIO_NUM_35, GPIO_NUM_MAX, 1)});
+		outputs.insert({2, new Output(ina3221, INA3221_CHANNEL_3, GPIO_NUM_33, GPIO_NUM_34, GPIO_NUM_MAX, 2)});
+	#elif REVISION == 2
+	#elif REVISION == 3
+		ina3221->writeConfiguration(
+			INA3221_MODE_SHUNT_AND_BUS_CONTINUOUS |
+			INA3221_SHUNT_CT_8244 |
+			INA3221_BUS_CT_8244 |
+			INA3221_AVG_1024 |
+			INA3221_CHANNEL_1_ENABLE |
+			INA3221_CHANNEL_2_ENABLE |
+			INA3221_CHANNEL_3_ENABLE
+		);
+		outputs.insert({1, new Output(ina3221, INA3221_CHANNEL_3, GPIO_NUM_18, GPIO_NUM_19, GPIO_NUM_21, 1)});
+		outputs.insert({2, new Output(ina3221, INA3221_CHANNEL_2, GPIO_NUM_26, GPIO_NUM_25, GPIO_NUM_33, 2)});
+		outputs.insert({3, new Output(ina3221, INA3221_CHANNEL_1, GPIO_NUM_32, GPIO_NUM_35, GPIO_NUM_34, 3)});
+	#endif
 	for (const auto& outputPair : outputs) {
 		ESP_ERROR_CHECK(outputPair.second->addAlertHandler(gpioAlertHandler));
 	}
@@ -223,15 +243,30 @@ void app_main() {
 	rtc->enableOscillator();
 	initOutputs(i2c);
 	HostnameManager *hostname = new HostnameManager();
-	Ethernet ethernet = Ethernet(hostname);
+	#if REVISION == 2
+		Ethernet ethernet = Ethernet(hostname);
+	#endif
 	Wifi *wifi = new Wifi(hostname);
 	MulticastDns mDns = MulticastDns(hostname);
 	Ntp ntp = Ntp(rtc);
 	initHttp(wifi, hostname);
 	initMqtt();
 	while (1) {
+		float totalCurrent = 0;
+		std::pair<float, Output*> maxCurrent = {0, nullptr};
 		for (const auto& outputPair : outputs) {
-			outputPair.second->publishMeasurements(mqtt);
+			Output *output = outputPair.second;
+			float current = fabs(output->readCurrent());
+			totalCurrent += current;
+			if (current > maxCurrent.first) {
+				maxCurrent = {current, output};
+			}
+			output->publishMeasurements(mqtt);
+		}
+		if (totalCurrent > 4200) {
+			uint32_t index = maxCurrent.second->getIndex();
+			ESP_LOGE("Output", "Total current %f mA is too high, disabling output %lu", totalCurrent, index);
+			maxCurrent.second->enable(false);
 		}
 		vTaskDelay(pdMS_TO_TICKS(500));
 	}

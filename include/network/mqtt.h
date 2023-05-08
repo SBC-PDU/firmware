@@ -187,6 +187,12 @@ class Mqtt {
 		 */
 		static std::string getBaseTopic();
 
+
+		static void inline logErrorIfNonzero(const char *message, int errorCode) {
+			if (errorCode != ESP_OK) {
+				ESP_LOGE(TAG, "Last error %s: 0x%x", message, errorCode);
+			}
+		}
 	protected:
 		/// Subscribe callbacks
 		static std::map<std::string, Mqtt::subscribe_callback_t> callbacks;

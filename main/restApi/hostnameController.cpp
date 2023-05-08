@@ -48,6 +48,7 @@ void HostnameController::registerEndpoints(const httpd_handle_t &server) {
 }
 
 esp_err_t HostnameController::get(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
@@ -65,6 +66,7 @@ esp_err_t HostnameController::get(httpd_req_t *request) {
 }
 
 esp_err_t HostnameController::put(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
@@ -74,15 +76,20 @@ esp_err_t HostnameController::put(httpd_req_t *request) {
 	if (result != ESP_OK) {
 		return result;
 	}
+	bool valid = true;
 	cJSON *hostname = cJSON_GetObjectItem(root, "hostname");
 	if (hostname == nullptr) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Missing \"hostname\" property.");
 	}
 	if (!cJSON_IsString(hostname)) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"hostname\" is not a string.");
 	}
-	HostnameManager *manager = reinterpret_cast<HostnameManager*>(request->user_ctx);
-	manager->set(std::string(hostname->valuestring));
+	if (valid) {
+		HostnameManager *manager = reinterpret_cast<HostnameManager*>(request->user_ctx);
+		manager->set(std::string(hostname->valuestring));
+	}
 	httpd_resp_sendstr(request, nullptr);
 	cJSON_Delete(root);
 	return ESP_OK;

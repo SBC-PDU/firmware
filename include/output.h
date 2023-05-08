@@ -31,9 +31,10 @@ class Output {
 		 * @param channel INA3221 channel ID
 		 * @param enable Enable GPIO pin
 		 * @param alert Alert GPIO pin
+		 * @param buton Button GPIO pin
 		 * @param index Output index
 		 */
-		Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, gpio_num_t alert, uint8_t index);
+		Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, gpio_num_t alert, gpio_num_t button, uint8_t index);
 
 		/**
 		 * Is the output in alert state?
@@ -60,6 +61,12 @@ class Output {
 		 * @param enabled Output enablement
 		 */
 		void enable(bool enabled);
+
+		/**
+		 * Returns the output index
+		 * @return uint32_t Outpot index
+		 */
+		uint32_t getIndex();
 
 		/**
 		 * Is the output enabled?
@@ -111,7 +118,22 @@ class Output {
 		 */
 		void subscribeEnablement(Mqtt *mqtt, Mqtt::subscribe_callback_t callback);
 
-	public:
+		/**
+		 * Handles button press
+		 * @param arg Pointer to Output instance
+		 */
+		static void IRAM_ATTR buttonHandler(void *arg);
+
+		/**
+		 * Button task - handles button press
+		 * @param arg Pointer to Output instance
+		 */
+		static void buttonTask(void *arg);
+
+		/// @brief Button queue
+		static QueueHandle_t buttonQueue;
+
+	private:
 		/// @brief Pointer to INA3221 driver instance
 		Ina3221 *ina3221;
 		/// @brief INA3221 channel ID
@@ -120,6 +142,8 @@ class Output {
 		bool enabled = false;
 		/// @brief Alert GPIO pin
 		gpio_num_t alertPin;
+		/// @brief Button GPIO pin
+		gpio_num_t buttonPin;
 		/// @brief Enable GPIO pin
 		gpio_num_t enablePin;
 		/// @brief Output index

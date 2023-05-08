@@ -101,7 +101,7 @@ esp_err_t HttpServer::getFrontendFiles(httpd_req_t *request) {
 HttpServer::HttpServer(const std::string &basePath) {
 	this->context->basePath = basePath;
 	httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-	config.max_uri_handlers = 16;
+	config.max_uri_handlers = 24;
 	config.uri_match_fn = httpd_uri_match_wildcard;
 
 	ESP_LOGI(TAG, "Starting HTTP Server");
@@ -130,4 +130,23 @@ void HttpServer::registerFrontendHandler() {
 #endif
 	};
 	httpd_register_uri_handler(this->handle, &common_get_uri);
+}
+
+void HttpServer::registerCorsHandler() {
+	httpd_uri_t cors_get_uri = {
+		.uri = "/api/*",
+		.method = HTTP_OPTIONS,
+		.handler = [](httpd_req_t *request) {
+			sbc_pdu::restApi::Cors::addHeaders(request);
+			httpd_resp_send(request, NULL, 0);
+			return ESP_OK;
+		},
+		.user_ctx = nullptr,
+#ifdef CONFIG_HTTPD_WS_SUPPORT
+		.is_websocket = false,
+		.handle_ws_control_frames = false,
+		.supported_subprotocol = nullptr,
+#endif
+	};
+	httpd_register_uri_handler(this->handle, &cors_get_uri);
 }

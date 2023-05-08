@@ -79,6 +79,9 @@ esp_err_t Mcp7940n::getTime(tm *time) {
 	time->tm_mday = Bcd::bcd2bin(buffer[MCP7940N_REG_RTCDATE] & 0x3F);
 	time->tm_mon = Bcd::bcd2bin(buffer[MCP7940N_REG_RTCMTH] & 0x1F) - 1;
 	time->tm_year = Bcd::bcd2bin(buffer[MCP7940N_REG_RTCYEAR]) + 100;
+	char strBuffer[64];
+	strftime(strBuffer, sizeof(strBuffer), "%c", time);
+	ESP_LOGI(TAG, "Date/time  is: %s", strBuffer);
 	return ret;
 }
 
@@ -88,6 +91,9 @@ esp_err_t Mcp7940n::setTime(tm *time) {
 		ESP_LOGE(TAG, "Time structure is null");
 		return ESP_ERR_INVALID_ARG;
 	}
+	char strBuffer[64];
+	strftime(strBuffer, sizeof(strBuffer), "%c", time);
+	ESP_LOGI(TAG, "Date/time to set is: %s", strBuffer);
 	buffer[MCP7940N_REG_RTCSEC] = Bcd::bin2bcd(time->tm_sec) | MCP7940N_BIT_ST;
 	buffer[MCP7940N_REG_RTCMIN] = Bcd::bin2bcd(time->tm_min);
 	buffer[MCP7940N_REG_RTCHOUR] = Bcd::bin2bcd(time->tm_hour);

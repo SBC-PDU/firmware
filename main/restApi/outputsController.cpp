@@ -51,6 +51,7 @@ void OutputsController::registerEndpoints(const httpd_handle_t &server) {
 }
 
 esp_err_t OutputsController::get(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
@@ -64,6 +65,7 @@ esp_err_t OutputsController::get(httpd_req_t *request) {
 			ESP_LOGE("HTTP Outputs", "Output with ID %d is null.", outputPair.first);
 			continue;
 		}
+		cJSON_AddNumberToObject(outputObject, "index", output->getIndex());
 		cJSON_AddBoolToObject(outputObject, "alert", output->hasAlert());
 		cJSON_AddBoolToObject(outputObject, "enabled", output->isEnabled());
 		cJSON_AddNumberToObject(outputObject, "current", fabs(output->readCurrent()));
@@ -78,6 +80,7 @@ esp_err_t OutputsController::get(httpd_req_t *request) {
 }
 
 esp_err_t OutputsController::switchOutput(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
@@ -87,25 +90,33 @@ esp_err_t OutputsController::switchOutput(httpd_req_t *request) {
 	if (result != ESP_OK) {
 		return result;
 	}
+	bool valid = true;
 	cJSON *outputId = cJSON_GetObjectItem(root, "output");
 	if (outputId == nullptr) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Missing \"output\" property.");
 	}
 	if (!cJSON_IsNumber(outputId)) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"output\" is not a number.");
 	}
 	auto output = OutputsController::outputs->find(outputId->valueint);
 	if (output == OutputsController::outputs->end()) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Output with given ID does not exist.");
 	}
 	cJSON *state = cJSON_GetObjectItem(root, "state");
 	if (state == nullptr) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Missing \"state\" property.");
 	}
 	if (!cJSON_IsBool(state)) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"state\" is not a boolean.");
 	}
-	output->second->enable(state->valueint);
+	if (valid) {
+		output->second->enable(state->valueint);
+	}
 	httpd_resp_sendstr(request, nullptr);
 	cJSON_Delete(root);
 	return ESP_OK;

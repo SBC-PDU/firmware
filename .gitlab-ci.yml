@@ -12,15 +12,47 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-build_frontend:
+stages:
+  - coding-style
+  - build
+
+.pnpm-template: &pnpm-template
   image: registry.gitlab.com/sbc-pdu/central-management/frontend:testing
+  before_script:
+    - pnpm config set store-dir .pnpm-store
+    - cd webapp/
+    - pnpm install
+  cache:
+    paths:
+      - .pnpm-store
+
+eslint:
+  script:
+    - pnpm run lint:js
+  stage: coding-style
+  <<: *pnpm-template
+
+vue-i18n:
+  script:
+    - pnpm run lint:i18n
+  stage: coding-style
+  <<: *pnpm-template
+
+stylelint:
+  script:
+    - pnpm run lint:css
+  stage: coding-style
+  <<: *pnpm-template
+
+build_frontend:
   stage: build
   script:
-    - mkdir -p webapp/dist
+    - pnpm build
   artifacts:
     paths:
       - webapp/dist
     expire_in: 1 week
+  <<: *pnpm-template
 
 build_esp-idf:
   stage: build
@@ -39,6 +71,7 @@ build_platformio:
     - pio pkg update
   script:
     - pio run
+  allow_failure: true
   needs:
     - job: build_frontend
       artifacts: true

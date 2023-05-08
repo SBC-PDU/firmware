@@ -118,9 +118,15 @@ Ntp::Ntp(Mcp7940n *rtc) {
 	if (rtc != nullptr && timeinfo.tm_year < (2023 - 1900)) {
 		ESP_LOGI(TAG, "Time is not set yet. Getting time from RTC.");
 		rtc->getTime(&timeinfo);
-		Ntp::obtainTime();
+		time_t timeSinceEpoch = mktime(&timeinfo);
+		struct timeval tv = {
+			.tv_sec = timeSinceEpoch,
+			.tv_usec = 0,
+		};
+	    settimeofday(&tv, nullptr);
 		time(&now);
-	} else if (timeinfo.tm_year < (2023 - 1900)) {
+	}
+	if (timeinfo.tm_year < (2023 - 1900)) {
 		ESP_LOGI(TAG, "Time is not set yet. Connecting to WiFi and getting time over NTP.");
 		Ntp::obtainTime();
 		time(&now);

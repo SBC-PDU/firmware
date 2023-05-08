@@ -15,7 +15,9 @@
  */
 #include "output.h"
 
-Output::Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, gpio_num_t alert, uint8_t index): ina3221(ina3221), channel(channel), alertPin(alert), enablePin(enable), index(index) {
+QueueHandle_t Output::buttonQueue = nullptr;
+
+Output::Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, gpio_num_t alert, gpio_num_t button, uint8_t index): ina3221(ina3221), channel(channel), alertPin(alert), buttonPin(button), enablePin(enable), index(index) {
 	gpio_config_t alertConfig = {
 		.pin_bit_mask = (1ULL << static_cast<int>(this->alertPin)),
 		.mode = GPIO_MODE_INPUT,
@@ -33,7 +35,38 @@ Output::Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, g
 	};
 	ESP_ERROR_CHECK(gpio_config(&enableConfig));
 	ESP_ERROR_CHECK(gpio_set_level(this->enablePin, 1));
+	if (button != GPIO_NUM_MAX) {
+		gpio_config_t buttonConfig = {
+			.pin_bit_mask = (1ULL << static_cast<int>(this->buttonPin)),
+			.mode = GPIO_MODE_INPUT,
+			.pull_up_en = GPIO_PULLUP_DISABLE,
+			.pull_down_en = GPIO_PULLDOWN_DISABLE,
+			.intr_type = GPIO_INTR_POSEDGE,
+		};
+		ESP_ERROR_CHECK(gpio_config(&buttonConfig));
+		ESP_ERROR_CHECK(gpio_isr_handler_add(this->buttonPin, Output::buttonHandler, (void *) this));
+		if (Output::buttonQueue == nullptr) {
+			Output::buttonQueue = xQueueCreate(10, sizeof(Output *));
+		}
+		xTaskCreate(Output::buttonTask, "buttonTask", 4096, nullptr, 10, nullptr);
+	}
 	this->baseMqttTopic = Mqtt::getBaseTopic() + "/outputs/" + std::to_string(this->index);
+}
+
+void IRAM_ATTR Output::buttonHandler(void *arg) {
+	Output *output = static_cast<Output *>(arg);
+	xQueueSendFromISR(Output::buttonQueue, &output, nullptr);
+}
+
+void Output::buttonTask(void *arg) {
+	Output *output;
+	while (true) {
+		if (xQueueReceive(Output::buttonQueue, &output, portMAX_DELAY)) {
+			if (output != nullptr) {
+				output->enable(!output->isEnabled());
+			}
+		}
+	}
 }
 
 bool Output::hasAlert() {
@@ -67,6 +100,10 @@ float Output::readVoltage() {
 
 std::string Output::getBaseMqttTopic() {
 	return this->baseMqttTopic;
+}
+
+uint32_t Output::getIndex() {
+	return this->index;
 }
 
 void Output::publishAlert(Mqtt *mqtt) {

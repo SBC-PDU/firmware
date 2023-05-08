@@ -60,6 +60,7 @@ void WifiController::registerEndpoints(const httpd_handle_t &server) {
 }
 
 esp_err_t WifiController::getConfig(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	sbc_pdu::restApi::BasicAuthenticator authenticator = sbc_pdu::restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
@@ -68,7 +69,7 @@ esp_err_t WifiController::getConfig(httpd_req_t *request) {
 	httpd_resp_set_type(request, "application/json");
 	cJSON *root = cJSON_CreateObject();
 	uint8_t authModeValue;
-	if (nvs.get("authMode", authModeValue) != ESP_OK) {
+	if (nvs.get("authmode", authModeValue) != ESP_OK) {
 		authModeValue = static_cast<uint8_t>(WIFI_AUTH_OPEN);
 	}
 	auto authMode = Wifi::authModes.find(
@@ -94,6 +95,7 @@ esp_err_t WifiController::getConfig(httpd_req_t *request) {
 }
 
 esp_err_t WifiController::putConfig(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;
@@ -103,13 +105,16 @@ esp_err_t WifiController::putConfig(httpd_req_t *request) {
 	if (result != ESP_OK) {
 		return result;
 	}
+	bool valid = true;
 	NvsManager nvs = NvsManager("wifi");
 	cJSON *authMode = cJSON_GetObjectItem(root, "authMode");
 	if (authMode == nullptr) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Missing \"authMode\" property.");
 
 	}
 	if (!cJSON_IsString(authMode)) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"authMode\" is not a string.");
 	}
 	auto authModeValue = std::find_if(
@@ -120,32 +125,40 @@ esp_err_t WifiController::putConfig(httpd_req_t *request) {
 		}
 	);
 	if (authModeValue == Wifi::authModes.end()) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Unknown \"authMode\" value.");
 	}
-	nvs.set("authmode", static_cast<uint8_t>(authModeValue->first));
 	cJSON *ssid = cJSON_GetObjectItem(root, "ssid");
 	if (ssid == nullptr) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Missing \"ssid\" property.");
 	}
 	if (!cJSON_IsString(ssid)) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"ssid\" is not a string.");
 	}
-	nvs.setString("ssid", ssid->valuestring);
 	cJSON *psk = cJSON_GetObjectItem(root, "psk");
 	if (psk == nullptr) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Missing \"psk\" property.");
 	}
 	if (!cJSON_IsString(psk)) {
+		valid = false;
 		RestApiUtils::createBadRequestResponse(request, "Property \"psk\" is not a string.");
 	}
-	nvs.setString("psk", psk->valuestring);
-	nvs.commit();
+	if (valid) {
+		nvs.set("authmode", static_cast<uint8_t>(authModeValue->first));
+		nvs.setString("ssid", ssid->valuestring);
+		nvs.setString("psk", psk->valuestring);
+		nvs.commit();
+	}
 	httpd_resp_sendstr(request, nullptr);
 	cJSON_Delete(root);
 	return ESP_OK;
 }
 
 esp_err_t WifiController::scan(httpd_req_t *request) {
+	sbc_pdu::restApi::Cors::addHeaders(request);
 	sbc_pdu::restApi::BasicAuthenticator authenticator = sbc_pdu::restApi::BasicAuthenticator();
 	if (!authenticator.authenticate(request)) {
 		return ESP_OK;

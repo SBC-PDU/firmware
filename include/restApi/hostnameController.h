@@ -25,6 +25,7 @@
 
 #include "network/hostname.h"
 #include "restApi/basicAuthenticator.h"
+#include "restApi/cors.h"
 #include "utils/restApiUtils.h"
 
 #ifndef MIN

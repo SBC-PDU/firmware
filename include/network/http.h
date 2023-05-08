@@ -31,6 +31,8 @@
 #include <esp_vfs.h>
 #include <cJSON.h>
 
+#include "restApi/cors.h"
+
 #define SCRATCH_BUFSIZE (10240)
 
 /**
@@ -69,9 +71,13 @@ class HttpServer {
 
 		/**
 		 * Registers the frontend handler
-		 * @param server HTTP server handle
 		 */
 		void registerFrontendHandler();
+
+		/**
+		 * Registers the CORS handler
+		 */
+		void registerCorsHandler();
 
 		/**
 		 * Set HTTP response content type according to file extension

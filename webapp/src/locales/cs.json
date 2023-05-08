@@ -1,0 +1,265 @@
+{
+	"$vuetify": {
+		"badge": "Odznak",
+		"calendar": {
+			"moreEvents": "{0} dalších"
+		},
+		"carousel": {
+			"ariaLabel": {
+				"delimiter": "Obrázek {0} z {1}"
+			},
+			"next": "Další obrázek",
+			"prev": "Předchozí obrázek"
+		},
+		"close": "Zavřít",
+		"dataFooter": {
+			"firstPage": "První strana",
+			"itemsPerPageAll": "Vše",
+			"itemsPerPageText": "Položek na stránku:",
+			"lastPage": "Poslední strana",
+			"nextPage": "Další strana",
+			"pageText": "{0}-{1} z {2}",
+			"prevPage": "Předchozí strana"
+		},
+		"dataIterator": {
+			"loadingText": "Načítám položky...",
+			"noResultsText": "Nenalezeny žádné záznamy"
+		},
+		"dataTable": {
+			"ariaLabel": {
+				"activateAscending": "Aktivováním se bude řadit vzestupně.",
+				"activateDescending": "Aktivováním se bude řadit sestupně.",
+				"activateNone": "Aktivováním vypnete řazení.",
+				"sortAscending": "Řazeno vzestupně.",
+				"sortDescending": "Řazeno sestupně.",
+				"sortNone": "Neseřazeno."
+			},
+			"itemsPerPageText": "Řádků na stránku:",
+			"sortBy": "Řadit dle"
+		},
+		"datePicker": {
+			"itemsSelected": "{0} vybráno",
+			"nextMonthAriaLabel": "Příští měsíc",
+			"nextYearAriaLabel": "Příští rok",
+			"prevMonthAriaLabel": "Předchozí měsíc",
+			"prevYearAriaLabel": "Předchozí rok"
+		},
+		"fileInput": {
+			"counter": "{0} souborů",
+			"counterSize": "{0} souborů ({1} celkem)"
+		},
+		"input": {
+			"appendAction": "{0} appended action",
+			"clear": "Clear {0}",
+			"prependAction": "{0} prepended action"
+		},
+		"noDataText": "Nejsou dostupná žádná data",
+		"pagination": {
+			"ariaLabel": {
+				"currentPage": "Aktuální stránka, stránka {0}",
+				"first": "První strana",
+				"last": "Poslední strana",
+				"next": "Další strana",
+				"page": "Přejít na stránku {0}",
+				"previous": "Předchozí strana",
+				"root": "Navigace po stránkách"
+			}
+		},
+		"rating": {
+			"ariaLabel": {
+				"item": "Hodnocení {0} z {1}"
+			}
+		},
+		"timePicker": {
+			"am": "odp.",
+			"pm": "dop."
+		}
+	},
+	"core": {
+		"actions": {
+			"edit": "Upravit"
+		},
+		"config": {
+			"title": "Konfigurace",
+			"auth": {
+				"title": "Konfigurace autentizace",
+				"sidebar": "Autentizace",
+				"fields": {
+					"username": "Uživatelské jméno",
+					"oldPassword": "Stávající heslo",
+					"newPassword": "Nové heslo"
+				},
+				"messages": {
+					"emptyUsername": "Zadejte uživatelské jméno.",
+					"emptyOldPassword": "Zadejte stávající heslo.",
+					"emptyNewPassword": "Zadejte nové heslo.",
+					"incorrectOldPassword": "Stávající heslo není správné.",
+					"success": "Konfigurace autentizace byla úspěšně uložena.",
+					"error": "Konfiguraci autentizace se nepodařilo uložit."
+				}
+			},
+			"hostname": {
+				"title": "Konfigurace hostname",
+				"sidebar": "Hostname",
+				"fields": {
+					"hostname": "Hostname"
+				},
+				"messages": {
+					"emptyHostname": "Zadejte hostname.",
+					"success": "Konfigurace hostname byla úspěšně uložena.",
+					"error": "Konfiguraci hostname se nepodařilo uložit."
+				}
+			},
+			"mqtt": {
+				"title": "MQTT konfigurace",
+				"sidebar": "MQTT",
+				"fields": {
+					"uri": "Adresa MQTT brokeru",
+					"username": "Uživatelské jméno",
+					"password": "Heslo"
+				},
+				"messages": {
+					"emptyUri": "Zadejte adresu MQTT brokeru.",
+					"emptyUsername": "Zadejte uživatelské jméno.",
+					"emptyPassword": "Zadejte heslo.",
+					"success": "MQTT konfigurace byla úspěšně uložena.",
+					"error": "MQTT konfiguraci se nepodařilo uložit."
+				}
+			},
+			"ntp": {
+				"title": "NTP konfigurace",
+				"sidebar": "NTP",
+				"fields": {
+					"server": "Adresa NTP serveru",
+					"timezone": "Časová zóna"
+				},
+				"messages": {
+					"emptyServer": "Zadejte adresu NTP serveru.",
+					"emptyTimezone": "Vyberte časové zónu.",
+					"success": "NTP konfigurace byla úspěšně uložena.",
+					"error": "NTP konfiguraci se nepodařilo uložit."
+				}
+			},
+			"wifi": {
+				"title": "WiFi konfigurace",
+				"sidebar": "WiFi",
+				"fields": {
+					"authMode": "Autentizační mód",
+					"ssid": "SSID",
+					"psk": "Heslo"
+				},
+				"messages": {
+					"emptyAuthMode": "Prosím vyberte autentizační mód.",
+					"emptySsid": "Prosím zadejte SSID.",
+					"emptyPsk": "Prosím zadejte heslo.",
+					"success": "WiFi konfigurace byla úspěšně uložena.",
+					"error": "WiFi konfiguraci se nepodařilo uložit."
+				}
+			}
+		},
+		"dashboard": {
+			"title": "Přehled",
+			"outputs": {
+				"fields": {
+					"alert": "Alarm",
+					"alertValues": {
+						"true": "Ano",
+						"false": "Ne"
+					},
+					"index": "Index",
+					"state": "Stav",
+					"current": "El. proud",
+					"voltage": "El. napětí",
+					"power": "El. výkon"
+				},
+				"reload": "Obnovit",
+				"messages": {
+					"success": {
+						"switchedOn": "Výstup #{index} byl zapnut.",
+						"switchedOff": "Výstup #{index} byl vypnut."
+					},
+					"error": {
+						"switchedOn": "Výstup #{index} se nepodařilo zapnout.",
+						"switchedOff": "Výstup #{index} se nepodařilo vypnout.",
+						"load": "Nepodařilo se načíst data o výstupech."
+					}
+				}
+			}
+		},
+		"error": {
+			"404": {
+				"title": "Stránka nenalezena",
+				"header": "Chyba 404",
+				"message": "Požadovanou stránku se nepodařilo najít. Je možné, že adresa je nesprávná nebo že stránka již neexistuje. K nalezení hledané stránky použijte vyhledávač."
+			}
+		},
+		"locales": {
+			"cs": "Čestina",
+			"en": "Angličtina"
+		},
+		"messages": {
+			"localeChanged": "Jazyk byl úspěšně změněn na {lang}."
+		},
+		"sign": {
+			"in": {
+				"title": "Přihlášení",
+				"form": {
+					"username": "Uživatelské jméno",
+					"password": "Heslo"
+				},
+				"button": "Přihlásit se",
+				"messages": {
+					"emptyUsername": "Zadejte prosím Vaše uživatelské jméno.",
+					"emptyPassword": "Zadejte prosím Vaše heslo.",
+					"success": "Byl jste úspěšně přihlášen.",
+					"invalidCredentials": "Neplatné přihlašovací údaje.",
+					"error": "Přihlášení se nezdařilo."
+				}
+			},
+			"out": {
+				"title": "Odhlásit se",
+				"message": "Byl jste úspěšně odhlášen."
+			}
+		},
+		"system": {
+			"info": {
+				"title": "Informace o systému",
+				"chip": {
+					"title": "Informace o čipu",
+					"model": "Model",
+					"revision": "Revize"
+				},
+				"network": {
+					"title": "Informace o sítovém rozhraní „{name}“",
+					"macAddress": "MAC adresa",
+					"ipv4": {
+						"title": "IPv4",
+						"address": "Adresa",
+						"netmask": "Maska sítě",
+						"gateway": "Brána"
+					},
+					"ipv6": {
+						"title": "IPv6"
+					},
+					"dns": {
+						"title": "DNS servery"
+					},
+					"hostname": "Hostname",
+					"isUp": "Je připojené"
+				},
+				"heap": {
+					"title": "Informace o haldě",
+					"free": "Volná paměť",
+					"total": "Celková paměť"
+				},
+				"firmware": {
+					"title": "Informace o firmwaru",
+					"version": "Verze",
+					"idfVersion": "Verze ESP-IDF"
+				},
+				"uptime": "Čas běhu"
+			}
+		},
+		"title": "Administrace napájecí jednotky"
+	}
+}
