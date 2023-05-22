@@ -5,6 +5,8 @@ idf_component_register(
     INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/include/
 )
 
+target_compile_definitions(${COMPONENT_TARGET} PRIVATE "-DREVISION=3")
+
 set(WEB_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../webapp")
 if(EXISTS ${WEB_SRC_DIR}/dist)
     spiffs_create_partition_image(spiffs ${WEB_SRC_DIR}/dist FLASH_IN_PROJECT)

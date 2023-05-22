@@ -50,7 +50,6 @@ Output::Output(Ina3221 *ina3221, ina3221_channel_t channel, gpio_num_t enable, g
 		}
 		xTaskCreate(Output::buttonTask, "buttonTask", 4096, nullptr, 10, nullptr);
 	}
-	this->baseMqttTopic = Mqtt::getBaseTopic() + "/outputs/" + std::to_string(this->index);
 }
 
 void IRAM_ATTR Output::buttonHandler(void *arg) {
@@ -98,26 +97,6 @@ float Output::readVoltage() {
 	return this->ina3221->readBusVoltage(this->channel);
 }
 
-std::string Output::getBaseMqttTopic() {
-	return this->baseMqttTopic;
-}
-
 uint32_t Output::getIndex() {
 	return this->index;
-}
-
-void Output::publishAlert(Mqtt *mqtt) {
-	mqtt->publishString(this->baseMqttTopic + "/alert", std::to_string(this->hasAlert()), 2, false);
-}
-
-void Output::publishMeasurements(Mqtt *mqtt) {
-	this->publishAlert(mqtt);
-	mqtt->publishString(this->baseMqttTopic + "/enabled", std::to_string(this->isEnabled()), 2, false);
-	mqtt->publishString(this->baseMqttTopic + "/current", std::to_string(fabs(this->readCurrent())), 2, false);
-	mqtt->publishString(this->baseMqttTopic + "/voltage", std::to_string(this->readVoltage()), 2, false);
-
-}
-
-void Output::subscribeEnablement(Mqtt* mqtt, Mqtt::subscribe_callback_t callback) {
-	mqtt->subscribe(this->baseMqttTopic + "/enable", callback, 2);
 }

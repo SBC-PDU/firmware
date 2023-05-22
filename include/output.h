@@ -88,37 +88,6 @@ class Output {
 		float readVoltage();
 
 		/**
-		 * Returns the base MQTT topic
-		 * @return std::string Base MQTT topic
-		 */
-		std::string getBaseMqttTopic();
-
-		/**
-		 * Publishes alest state to MQTT
-		 * @param mqtt Pointer to MQTT client instance
-		 */
-		void publishAlert(Mqtt *mqtt);
-
-		/**
-		 * Publishes measurements to MQTT
-		 * @param mqtt Pointer to MQTT client instance
-		 */
-		void publishMeasurements(Mqtt *mqtt);
-
-		/**
-		 * MQTT receive message callback
-		 * @param event MQTT event
-		 */
-		void receiveMqttCallback(esp_mqtt_event_handle_t event);
-
-		/**
-		 * Subscribes for output enablement state
-		 * @param mqtt Pointer to MQTT client instance
-		 * @param callback Subscribe callback
-		 */
-		void subscribeEnablement(Mqtt *mqtt, Mqtt::subscribe_callback_t callback);
-
-		/**
 		 * Handles button press
 		 * @param arg Pointer to Output instance
 		 */
@@ -148,6 +117,4 @@ class Output {
 		gpio_num_t enablePin;
 		/// @brief Output index
 		uint32_t index;
-		/// @brief Base MQTT topic
-		std::string baseMqttTopic;
 };

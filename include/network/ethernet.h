@@ -16,6 +16,7 @@
 
 #pragma once
 
+#ifdef CONFIG_ETH_USE_ESP32_EMAC
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -73,3 +74,4 @@ class Ethernet {
 		/// PHY
 		esp_eth_phy_t *phy = nullptr;
 };
+#endif

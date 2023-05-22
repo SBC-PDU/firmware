@@ -24,9 +24,12 @@
 #include <vector>
 #include <cJSON.h>
 
+#include "homeAssistant.h"
 #include "i2c_master.h"
 #include "ina3221.h"
+#if REVISION == 2
 #include "network/ethernet.h"
+#endif
 #include "network/hostname.h"
 #include "network/http.h"
 #include "network/mdns.h"
@@ -43,18 +46,18 @@
 #include "restApi/outputsController.h"
 #include "restApi/systemController.h"
 #include "restApi/wifiController.h"
+#include "sbcPduManagement.h"
 #include "output.h"
 #include "spiffs.h"
-
-/// HW revision
-#define REVISION 3
 
 extern "C" void app_main();
 
 /// @brief Alert queue
 static QueueHandle_t alertQueue = nullptr;
-/// @brief Pointer to MQTT client instance
-Mqtt *mqtt = nullptr;
+/// Home Assistant MQTT client
+HomeAssistant *homeAssistant = nullptr;
+/// @brief Pointer to SBC PDU management client instance
+SbcPduManagement *pduManagement = nullptr;
 /// @brief Output map <index, pointer to output>
 std::map<uint8_t, Output*> outputs = {};
 
@@ -65,22 +68,11 @@ std::map<uint8_t, Output*> outputs = {};
  * @param event MQTT event
  */
 void mqttConnectCallback(Mqtt* client, esp_event_base_t base, esp_mqtt_event_handle_t event) {
-	mqtt->publishString(Mqtt::getBaseTopic() + "/status", "online", 2, true);
-}
-
-/**
- * MQTT receive message callback
- * @param event NQTT event
- */
-void mqttReceiveCallback(esp_mqtt_event_handle_t event) {
-	static const char TAG[] = "MQTT";
-	ESP_LOGI(TAG, "Received data from MQTT:");
-	std::string topic(event->topic, event->topic_len);
-	std::string data(event->data, event->data_len);
-	for (const auto& outputPair : outputs) {
-		if (topic == outputPair.second->getBaseMqttTopic() + "/enable") {
-			outputPair.second->enable(data == "1");
-		}
+	if (homeAssistant != nullptr) {
+		homeAssistant->connectCallback(client, base, event);
+	}
+	if (pduManagement != nullptr) {
+		pduManagement->connectCallback(client, base, event);
 	}
 }
 
@@ -104,7 +96,9 @@ static void alertTask(void* arg) {
 		if (xQueueReceive(alertQueue, &outputId, portMAX_DELAY)) {
 			auto output = outputs.find(static_cast<uint8_t>(outputId));
 			if (output != outputs.end()) {
-				output->second->publishAlert(mqtt);
+				if (pduManagement != nullptr) {
+					pduManagement->publishOutputAlert(output->second);
+				}
 			}
 		}
 	}
@@ -142,15 +136,14 @@ void initHttp(Wifi *wifi, HostnameManager *hostnameManager) {
  * Initializes MQTT client
  */
 void initMqtt() {
-	MqttConfig mqttConfig = MqttConfig();
-	MqttLastWillAndTestament mqttLwt = MqttLastWillAndTestament(Mqtt::getBaseTopic() + "/status", "offline", 2, true);
-	mqttConfig.setLastWillAndTestament(&mqttLwt);
-	mqtt = new Mqtt(mqttConfig);
+	MqttConfig config = MqttConfig();
+	MqttLastWillAndTestament lwt = MqttLastWillAndTestament(SbcPduManagement::getDeviceBaseTopic() + "/status", "offline", 2, true);
+	config.setLastWillAndTestament(&lwt);
+	Mqtt *mqtt = new Mqtt(config);
 	mqtt->setOnConnect(mqttConnectCallback);
+	homeAssistant = new HomeAssistant(mqtt, &outputs);
+	pduManagement = new SbcPduManagement(mqtt, &outputs);
 	mqtt->connect();
-	for (const auto& outputPair : outputs) {
-		outputPair.second->subscribeEnablement(mqtt, mqttReceiveCallback);
-	}
 }
 
 /**
@@ -261,7 +254,9 @@ void app_main() {
 			if (current > maxCurrent.first) {
 				maxCurrent = {current, output};
 			}
-			output->publishMeasurements(mqtt);
+			if (pduManagement != nullptr) {
+				pduManagement->publishOutputMeasurements(output);
+			}
 		}
 		if (totalCurrent > 4200) {
 			uint32_t index = maxCurrent.second->getIndex();

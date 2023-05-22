@@ -63,6 +63,10 @@ void MqttConfig::setLastWillAndTestament(MqttLastWillAndTestament *lwt) {
 	this->config.session.last_will.retain = lwt->getRetain();
 }
 
+void MqttConfig::setClientId(const std::string &clientId) {
+	this->config.credentials.client_id = clientId.c_str();
+}
+
 std::map<std::string, Mqtt::subscribe_callback_t> Mqtt::callbacks = std::map<std::string, Mqtt::subscribe_callback_t>();
 esp_mqtt_client_handle_t Mqtt::handle = nullptr;
 Mqtt::connect_callback_t Mqtt::onConnect;
@@ -189,8 +193,4 @@ int Mqtt::unsubscribe(const std::string &topic) {
 		ESP_LOGE(TAG, "Failed to unsuscribe from the topic \"%s\".", topic.c_str());
 	}
 	return msgId;
-}
-
-std::string Mqtt::getBaseTopic() {
-	return "sbc_pdu/" + Wifi::getPrimaryMacAddress();
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifdef CONFIG_ETH_USE_ESP32_EMAC
 #include "network/ethernet.h"
 
 
@@ -75,3 +76,4 @@ void Ethernet::eventHandler(void* arg, esp_event_base_t base, int32_t id, void* 
 	}
 
 }
+#endif

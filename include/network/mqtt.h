@@ -101,6 +101,12 @@ class MqttConfig {
 		 */
 		void setLastWillAndTestament(MqttLastWillAndTestament *lwt);
 
+		/**
+		 * Sets the MQTT client ID
+		 * @param clientId Client ID
+		 */
+		void setClientId(const std::string &clientId);
+
 	private:
 		 /// MQTT broker URI
 		std::string brokerUri;
@@ -180,12 +186,6 @@ class Mqtt {
 		 * @param onConnect Connection callback
 		 */
 		void setOnConnect(Mqtt::connect_callback_t onConnect);
-
-		/**
-		 * Returns base MQTT topic
-		 * @return Base MQTT topic
-		 */
-		static std::string getBaseTopic();
 
 
 		static void inline logErrorIfNonzero(const char *message, int errorCode) {
