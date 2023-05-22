@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 import {AxiosResponse} from 'axios';
+import {Address6} from 'ip-address';
+import {isIPv6} from 'is-ip';
 
 import {ApiClient} from '@/services/ApiClient';
 import {SystemInfo} from '@/types/system';
@@ -29,7 +31,21 @@ export default class SystemService extends ApiClient {
 	 */
 	public getInfo(): Promise<SystemInfo> {
 		return this.getClient().get('system/info')
-			.then((response: AxiosResponse) => response.data as SystemInfo);
+			.then((response: AxiosResponse) => {
+				const info = response.data as SystemInfo;
+				for (const [ifaceIndex, iface] of info.network.entries()) {
+					for (const [ipv6Index, ipv6] of iface.ipv6.addresses.entries()) {
+						info.network[ifaceIndex].ipv6.addresses[ipv6Index] = (new Address6(ipv6)).correctForm();
+					}
+					for (const [dnsIndex, dns] of iface.dns.entries()) {
+						if (!isIPv6(dns)) {
+							continue;
+						}
+						info.network[ifaceIndex].dns[dnsIndex] = (new Address6(dns)).correctForm();
+					}
+				}
+				return info;
+			});
 	}
 
 }
