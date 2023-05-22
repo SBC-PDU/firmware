@@ -1,3 +1,13 @@
-build/
+# Old SDK config file
 sdkconfig.old
+# ESP-IDF managed components
+managed_components/
+# IDE config files
 .vscode/
+.idea/
+# Build files
+build/
+cmake-build-debug/
+# Trace files
+trace/
+heaptrace-gdbinit
