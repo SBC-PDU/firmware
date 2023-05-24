@@ -22,6 +22,7 @@
 #include <esp_ota_ops.h>
 #include <cJSON.h>
 
+#include "network/hostname.h"
 #include "network/mqtt.h"
 #include "network/wifi.h"
 #include "output.h"

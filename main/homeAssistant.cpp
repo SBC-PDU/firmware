@@ -38,6 +38,7 @@ void HomeAssistant::advertiseAlert(Mqtt *mqtt, Output *output, cJSON *device) {
 	cJSON_AddStringToObject(root, "payload_on", "1");
 	cJSON_AddStringToObject(root, "payload_off", "0");
 	cJSON_AddStringToObject(root, "unique_id", baseUniqueId.c_str());
+	cJSON_AddStringToObject(root, "state_class", "measurement");
 	const char *response = cJSON_PrintUnformatted(root);
 	mqtt->publishString(topic, std::string(response), 2, true);
 	delete response;
@@ -76,6 +77,7 @@ void HomeAssistant::advertiseSensors(Mqtt *mqtt, Output *output, cJSON *device) 
 		cJSON_AddStringToObject(root, "state_topic", (SbcPduManagement::getOutputBaseTopic(output) + "/" + sensor.deviceClass).c_str());
 		cJSON_AddStringToObject(root, "unique_id", baseUniqueId.c_str());
 		cJSON_AddStringToObject(root, "unit_of_measurement", sensor.unitOfMeasurement.c_str());
+		cJSON_AddStringToObject(root, "state_class", "measurement");
 		const char *response = cJSON_PrintUnformatted(root);
 		mqtt->publishString(topic, std::string(response), 2, true);
 		delete response;
@@ -110,13 +112,15 @@ void HomeAssistant::advertiseSwitch(Mqtt *mqtt, Output *output, cJSON *device) {
 
 void HomeAssistant::advertise(Mqtt *mqtt) {
 	cJSON *device = cJSON_CreateObject();
+	HostnameManager hostnameManager;
 	cJSON_AddStringToObject(device, "identifiers", Wifi::getPrimaryMacAddress().c_str());
+	cJSON_AddStringToObject(device, "configuration_url", ("http://" + hostnameManager.get() + ".local").c_str());
 	cJSON_AddStringToObject(device, "name", ("SBC PDU #" + Wifi::getPrimaryMacAddress()).c_str());
 	cJSON_AddStringToObject(device, "model", "SBC PDU");
 	cJSON_AddStringToObject(device, "manufacturer", "Roman Ondráček");
 	const esp_app_desc_t *appDescription = esp_app_get_description();
 	cJSON_AddStringToObject(device, "sw_version", appDescription->version);
-	cJSON_AddStringToObject(device, "hw_version", std::to_string(REVISION).c_str());
+	cJSON_AddStringToObject(device, "hw_version", ("1.0 rev. " + std::to_string(REVISION)).c_str());
 	for (auto const& [index, output] : *HomeAssistant::outputs) {
 		HomeAssistant::advertiseAlert(mqtt, output, device);
 		HomeAssistant::advertiseSensors(mqtt, output, device);

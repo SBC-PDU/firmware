@@ -90,7 +90,13 @@ bool Output::isEnabled() {
 }
 
 float Output::readCurrent() {
-	return this->ina3221->readCurrent(this->channel, 50);
+	float current = this->ina3221->readCurrent(this->channel, 50);
+#if REVISION == 3
+	if (current != 0) {
+		current = fabs(current - 1.6);
+	}
+#endif
+	return current;
 }
 
 float Output::readVoltage() {
