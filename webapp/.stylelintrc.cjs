@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 module.exports = {
-	'vueFiles': './src/**/*.{vue,ts}',
-	'languageFiles': './src/locales/*.json',
-	'exclude': [
-		'$vuetify',
+	"extends": [
+		"stylelint-config-standard-scss",
+		"stylelint-config-standard-vue"
 	],
+	"rules": {
+		"selector-class-pattern": "^[a-z][a-z0-9_-]+$",
+	}
 };
