@@ -37,7 +37,7 @@ class I2C {
 		 * @param sda SDA GPIO pin
 		 * @param scl SCL GPIO pin
 		 */
-		I2C(int port, gpio_num_t sda, gpio_num_t scl);
+		I2C(i2c_port_t port, gpio_num_t sda, gpio_num_t scl);
 
 		/**
 		 * Scans I2C slaves on the bus
@@ -70,5 +70,5 @@ class I2C {
 
 	private:
 		/// I2C port ID
-		int port;
+		i2c_port_t port;
 };

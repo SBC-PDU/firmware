@@ -15,7 +15,7 @@
  */
 #include "i2c_master.h"
 
-I2C::I2C(int port, gpio_num_t sda, gpio_num_t scl): port(port) {
+I2C::I2C(i2c_port_t port, gpio_num_t sda, gpio_num_t scl): port(port) {
 	i2c_config_t config = {
 		.mode = I2C_MODE_MASTER,
 		.sda_io_num = sda,
