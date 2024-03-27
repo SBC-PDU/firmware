@@ -56,7 +56,7 @@ build_frontend:
 
 build_esp-idf:
   stage: build
-  image: espressif/idf:release-v5.0
+  image: espressif/idf:release-v5.2
   script:
     - idf.py build
   needs:
