@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include <esp_ota_ops.h>
 #include <esp_timer.h>
 #include <esp_netif.h>
+#include <hal/efuse_hal.h>
 
 #include <cJSON.h>
 
@@ -72,6 +73,18 @@ namespace sbc_pdu {
 				 * @param root JSON root object
 				 */
 				static void setNetworkInfo(cJSON *root);
+
+				/**
+				 * Sets the Heap object to JSON response
+				 * @param root JSON root object
+				 */
+				static void setHeapInfo(cJSON *root);
+
+				/**
+				 * Sets the NVS object to JSON response
+				 * @param root JSON root object
+				 */
+				static void setNvsInfo(cJSON *root);
 
 			private:
 				/// Get system info endpoint handler

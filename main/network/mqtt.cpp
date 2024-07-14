@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,10 +41,10 @@ MqttConfig::MqttConfig() {
 	this->config.credentials.username = this->username.c_str();
 	nvs.getString("password", this->password);
 	this->config.credentials.authentication.password = this->password.c_str();
-	if (this->brokerUri.starts_with("mqtts://")) {
+	if (this->brokerUri.starts_with("mqtts://") || this->brokerUri.starts_with("wss://")) {
 		this->config.broker.verification.crt_bundle_attach = esp_crt_bundle_attach;
 	}
-	this->config.session.keepalive = 15;
+	this->config.session.keepalive = 30;
 }
 
 const esp_mqtt_client_config_t &MqttConfig::get() {
@@ -70,6 +70,7 @@ void MqttConfig::setClientId(const std::string &clientId) {
 std::map<std::string, Mqtt::subscribe_callback_t> Mqtt::callbacks = std::map<std::string, Mqtt::subscribe_callback_t>();
 esp_mqtt_client_handle_t Mqtt::handle = nullptr;
 Mqtt::connect_callback_t Mqtt::onConnect;
+bool Mqtt::connected = false;
 
 Mqtt::Mqtt(const MqttConfig &mqttConfig): config(mqttConfig) {
 	esp_log_level_set("MQTT_CLIENT", ESP_LOG_VERBOSE);
@@ -109,12 +110,14 @@ void Mqtt::eventHandler(void *handler_args, esp_event_base_t base, int32_t event
 			for (std::map<std::string, Mqtt::subscribe_callback_t>::iterator it = Mqtt::callbacks.begin(); it != Mqtt::callbacks.end(); ++it) {
 				mqtt->subscribe(it->first, it->second, 1);
 			}
+			Mqtt::connected = true;
 			Mqtt::handle = event->client;
 			if (Mqtt::onConnect) {
 				Mqtt::onConnect(mqtt, base, event);
 			}
 			break;
 		case MQTT_EVENT_DISCONNECTED:
+			Mqtt::connected = false;
 			ESP_LOGE(TAG, "Disconnected from the MQTT broker.");
 			break;
 		case MQTT_EVENT_SUBSCRIBED:
@@ -153,6 +156,9 @@ void Mqtt::eventHandler(void *handler_args, esp_event_base_t base, int32_t event
 int Mqtt::publishString(const std::string &topic, const std::string &data, const int qos, const bool retain) {
 	if (Mqtt::handle == nullptr) {
 		ESP_LOGE(TAG, "MQTT client handle in NULL");
+		return -1;
+	}
+	if (!Mqtt::connected) {
 		return -1;
 	}
 	int msgId = esp_mqtt_client_publish(Mqtt::handle, topic.c_str(), data.c_str(), data.length(), qos, retain);

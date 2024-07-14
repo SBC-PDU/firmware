@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,9 +52,12 @@ std::map<std::string, std::string> Ntp::timezones = {
 
 void Ntp::notifySyncronization(struct timeval *tv) {
 	ESP_LOGI(TAG, "Notification of a time synchronization event");
+	char buffer[64];
 	time_t epochTime = tv->tv_sec;
 	struct tm *timeinfo = localtime(&epochTime);
 	Ntp::rtc->setTime(timeinfo);
+	strftime(buffer, sizeof(buffer), "%c", timeinfo);
+	ESP_LOGI(TAG, "The synchronized date/time is: %s", buffer);
 }
 
 void Ntp::obtainTime() {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,13 @@
 
 MulticastDns::MulticastDns(HostnameManager *hostnameManager): hostnameManager(hostnameManager) {
 	esp_err_t result = mdns_init();
+	std::string mdnsPrefix = "SBC PDU unit #" + Wifi::getPrimaryMacAddress();
 	if (result != ESP_OK) {
 		ESP_LOGE(TAG, "Init failed: %d - %s", result, esp_err_to_name(result));
 	} else {
 		mdns_hostname_set(this->hostnameManager->get().c_str());
-		mdns_instance_name_set("SBC-PDU unit");
-		mdns_service_add("HTTP server", "_http", "_tcp", 80, NULL, 0);
+		mdns_instance_name_set(mdnsPrefix.c_str());
+		mdns_service_add((mdnsPrefix + " WebUI").c_str(), "_http", "_tcp", 80, NULL, 0);
 	}
 	netbiosns_init();
 	netbiosns_set_name("sbc-pdu");

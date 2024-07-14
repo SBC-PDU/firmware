@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -206,4 +206,6 @@ class Mqtt {
 		MqttConfig config;
 		/// On connect callback
 		static Mqtt::connect_callback_t onConnect;
+		/// Is the client connected to the broker
+		static bool connected;
 };

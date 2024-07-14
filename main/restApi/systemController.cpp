@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,13 +57,23 @@ void SystemController::setChipInfo(cJSON *root) {
 		{CHIP_ESP32S2, "ESP32-S2"},
 		{CHIP_ESP32S3, "ESP32-S3"},
 		{CHIP_ESP32C3, "ESP32-C3"},
-		{CHIP_ESP32H2, "ESP32-H2"},
 		{CHIP_ESP32C2, "ESP32-C2"},
+		{CHIP_ESP32C6, "ESP32-C6"},
+		{CHIP_ESP32H2, "ESP32-H2"},
 	};
 	auto foundModel = modelMap.find(chip_info.model);
 	std::string model = foundModel != modelMap.end() ? foundModel->second : "UNKNOWN";
 	cJSON_AddStringToObject(chipInfo, "model", model.c_str());
-	cJSON_AddNumberToObject(chipInfo, "revision", chip_info.revision);
+	std::stringstream revision;
+	revision << chip_info.revision / 100 << "." << std::setw(2) << std::setfill('0') << chip_info.revision % 100;
+	cJSON_AddStringToObject(chipInfo, "revision", revision.str().c_str());
+	cJSON *features = cJSON_AddObjectToObject(chipInfo, "features");
+	cJSON *wifiFeature = cJSON_AddObjectToObject(features, "wifi");
+	cJSON_AddBoolToObject(wifiFeature, "bgn", chip_info.features & CHIP_FEATURE_WIFI_BGN);
+	cJSON *bluetoothFeature = cJSON_AddObjectToObject(features, "bluetooth");
+	cJSON_AddBoolToObject(bluetoothFeature, "classic", chip_info.features & CHIP_FEATURE_BT);
+	cJSON_AddBoolToObject(bluetoothFeature, "lowEnergy", chip_info.features & CHIP_FEATURE_BLE);
+	cJSON_AddBoolToObject(features, "ieee802.15.4", chip_info.features & CHIP_FEATURE_IEEE802154);
 }
 
 void SystemController::setNetworkInfo(cJSON *root) {
@@ -126,6 +136,23 @@ void SystemController::setNetworkInfo(cJSON *root) {
 	}
 }
 
+void SystemController::setHeapInfo(cJSON *root) {
+	cJSON *heap = cJSON_AddObjectToObject(root, "heap");
+	cJSON_AddNumberToObject(heap, "total", heap_caps_get_total_size(MALLOC_CAP_8BIT));
+	cJSON_AddNumberToObject(heap, "free", heap_caps_get_free_size(MALLOC_CAP_8BIT));
+}
+
+void SystemController::setNvsInfo(cJSON *root) {
+	nvs_stats_t nvs_stats;
+	if (nvs_get_stats(NULL, &nvs_stats) != ESP_OK) {
+		return;
+	}
+	cJSON *heap = cJSON_AddObjectToObject(root, "nvs");
+	cJSON_AddNumberToObject(heap, "total", nvs_stats.total_entries);
+	cJSON_AddNumberToObject(heap, "used", nvs_stats.used_entries);
+	cJSON_AddNumberToObject(heap, "free", nvs_stats.free_entries);
+}
+
 esp_err_t SystemController::getInfo(httpd_req_t *request) {
 	sbc_pdu::restApi::Cors::addHeaders(request);
 	restApi::BasicAuthenticator authenticator = restApi::BasicAuthenticator();
@@ -136,11 +163,8 @@ esp_err_t SystemController::getInfo(httpd_req_t *request) {
 	cJSON *root = cJSON_CreateObject();
 	SystemController::setChipInfo(root);
 	SystemController::setNetworkInfo(root);
-
-	// Heap
-	cJSON *heap = cJSON_AddObjectToObject(root, "heap");
-	cJSON_AddNumberToObject(heap, "total", heap_caps_get_total_size(MALLOC_CAP_8BIT));
-	cJSON_AddNumberToObject(heap, "free", heap_caps_get_free_size(MALLOC_CAP_8BIT));
+	SystemController::setHeapInfo(root);
+	SystemController::setNvsInfo(root);
 
 	cJSON_AddStringToObject(root, "idfVersion", IDF_VER);
 	uint64_t uptime = esp_timer_get_time() / 1000000.0;
