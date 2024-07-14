@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 import '@/styles/main.scss';
 
-import {createVuetify} from 'vuetify';
-import {aliases, mdi} from 'vuetify/iconsets/mdi-svg';
+import { useI18n } from 'vue-i18n';
+import { createVuetify } from 'vuetify';
+import { aliases, mdi } from 'vuetify/iconsets/mdi-svg';
 import * as labs from 'vuetify/labs/components';
-import {createVueI18nAdapter} from 'vuetify/locale/adapters/vue-i18n';
-import {useI18n} from 'vue-i18n';
+import { createVueI18nAdapter } from 'vuetify/locale/adapters/vue-i18n';
 
 import i18n from '@/plugins/i18n';
 
@@ -39,7 +39,7 @@ export default createVuetify({
 	},
 	locale: {
 		// @ts-ignore
-		adapter: createVueI18nAdapter({i18n, useI18n})
+		adapter: createVueI18nAdapter({ i18n, useI18n }),
 	},
 	theme: {
 		themes: {
@@ -51,6 +51,7 @@ export default createVuetify({
 			light: {
 				colors: {
 					primary: '#1867C0',
+					background: '#ebedef',
 				},
 			},
 		},

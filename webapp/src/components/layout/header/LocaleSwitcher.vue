@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ limitations under the License.
 	<v-menu
 		location='bottom end'
 	>
-		<template v-slot:activator='{ props }'>
+		<template #activator='{ props }'>
 			<v-btn
 				color='primary'
 				v-bind='props'
@@ -40,10 +40,13 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {mdiChevronDown} from '@mdi/js';
+import { mdiChevronDown } from '@mdi/js';
+import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
 
-import {useLocaleStore} from '@/store/locale';
+import { useLocaleStore } from '@/store/locale';
 
+const i18n = useI18n();
 const store = useLocaleStore();
 
 /**
@@ -52,5 +55,6 @@ const store = useLocaleStore();
  */
 function setLanguage(locale: string) {
 	store.setLocale(locale);
+	toast.success(i18n.t('core.messages.localeChanged', { lang: i18n.t(`core.locales.${locale}`) }));
 }
 </script>

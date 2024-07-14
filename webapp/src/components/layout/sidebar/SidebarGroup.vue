@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@ limitations under the License.
 
 <template>
 	<v-list-group
-		:prepend-icon='props.subGroup ? "" : item.icon'
-		:subgroup='props.subGroup'
+		:prepend-icon='subGroup ? "" : item.icon'
+		:subgroup='subGroup'
 		:value='item.title'
 	>
-		<template #activator='{props}'>
-			<v-list-item :title='item.title' density='compact' v-bind='props'/>
+		<template #activator='{ props }'>
+			<v-list-item :title='item.title' density='compact' v-bind='props' />
 		</template>
 		<div v-for='(navItem, idx) in item.children' :key='idx'>
 			<SidebarGroup
@@ -38,15 +38,22 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
+import { type PropType } from 'vue';
+
 import SidebarItem from '@/components/layout/sidebar/SidebarItem.vue';
-import {SidebarLink} from '@/types/sidebar';
+import { SidebarLink } from '@/types/sidebar';
 
-interface Props {
+defineProps({
 	/// Sidebar items to render
-	item: SidebarLink;
+	item: {
+		type: Object as PropType<SidebarLink>,
+		required: true,
+	},
 	/// Is subgroup?
-	subGroup?: boolean;
-}
-
-const props = defineProps<Props>();
+	subGroup: {
+		type: Boolean,
+		default: false,
+		required: false,
+	},
+});
 </script>

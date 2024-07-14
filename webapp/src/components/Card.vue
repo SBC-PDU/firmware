@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,26 +29,26 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {computed} from 'vue';
+import { computed } from 'vue';
 
 
 const props = defineProps({
 	actionsColor: {
 		type: String,
 		default: 'grey-lighten-2',
-		required: false
+		required: false,
 	},
 	headerColor: {
 		type: String,
 		default: 'primary',
-		required: false
-	}
+		required: false,
+	},
 });
 const actionsClass = computed(() => `bg-${props.actionsColor}`);
 const headerClass = computed(() => `bg-${props.headerColor}`);
 </script>
 
-<style>
+<style scoped>
 .card-text {
 	padding: 1rem !important;
 }

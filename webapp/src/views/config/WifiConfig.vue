@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ limitations under the License.
 		<template #title>
 			{{ $t('core.config.wifi.title') }}
 		</template>
-		<v-form ref='form' @submit.prevent='submit' v-if='config !== null'>
+		<v-form v-if='config !== null' ref='form' @submit.prevent='submit'>
 			<v-select
 				v-model='config.authMode'
 				:label='$t("core.config.wifi.fields.authMode")'
@@ -64,37 +64,37 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {mdiKey, mdiPencil, mdiShieldKey, mdiWifi} from '@mdi/js';
-import {Head} from '@vueuse/head';
-import {Ref, ref} from 'vue';
-import {useI18n} from 'vue-i18n';
-import {toast} from 'vue3-toastify';
-import {VForm} from 'vuetify/components';
+import { mdiKey, mdiPencil, mdiShieldKey, mdiWifi } from '@mdi/js';
+import { Head } from '@vueuse/head';
+import { onBeforeMount, type Ref, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
+import { VForm } from 'vuetify/components';
 
 import Card from '@/components/Card.vue';
 import PasswordField from '@/components/PasswordField.vue';
 import FormValidator from '@/helpers/formValidator';
 import WifiService from '@/services/WifiService';
-import {useLoadingSpinnerStore} from '@/store/loadingSpinner';
-import {WifiAuthMode, WifiConfig} from '@/types/wifi';
+import { useLoadingSpinnerStore } from '@/store/loadingSpinner';
+import { WifiAuthMode, WifiConfig } from '@/types/wifi';
 
 const i18n = useI18n();
 const loadingSpinner = useLoadingSpinnerStore();
 const service = new WifiService();
 
 const config = ref<WifiConfig|null>(null);
-const form: Ref<typeof VForm | null> = ref(null);
+const form: Ref<VForm | null> = ref(null);
 
 /**
  * Loads WiFi configuration
  */
-function loadData() {
+async function loadData(): Promise<void> {
 	loadingSpinner.show();
-	service.getConfig().then((response: WifiConfig) => {
-		config.value = response;
-	}).finally(() => {
+	try {
+		config.value = await service.getConfig();
+	} finally {
 		loadingSpinner.hide();
-	});
+	}
 }
 
 /**
@@ -104,22 +104,20 @@ async function submit(): Promise<void> {
 	if (form.value === null) {
 		return;
 	}
-	const {valid} = await form.value.validate();
+	const { valid } = await form.value.validate();
 	if (!valid || config.value === null) {
 		return;
 	}
 	loadingSpinner.show();
-	await service.setConfig(config.value as WifiConfig)
-		.then(() => {
-			toast.success(i18n.t('core.config.wifi.messages.success'));
-		})
-		.catch(() => {
-			toast.error(i18n.t('core.config.wifi.messages.error'));
-		})
-		.finally(() => {
-			loadingSpinner.hide();
-		});
+	try {
+		await service.setConfig(config.value as WifiConfig);
+		toast.success(i18n.t('core.config.wifi.messages.success'));
+	} catch {
+		toast.error(i18n.t('core.config.wifi.messages.error'));
+	} finally {
+		loadingSpinner.hide();
+	}
 }
 
-loadData();
+onBeforeMount(async () => await loadData());
 </script>

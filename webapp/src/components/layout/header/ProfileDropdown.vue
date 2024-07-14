@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ limitations under the License.
 	<v-menu
 		location='bottom end'
 	>
-		<template v-slot:activator='{ props }'>
+		<template #activator='{ props }'>
 			<v-btn
 				color='blue-lighten-1'
 				v-bind='props'
@@ -37,10 +37,12 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {mdiChevronDown, mdiLogout} from '@mdi/js';
-import {useUserStore} from '@/store/user';
-import {toast} from 'vue3-toastify';
-import {useI18n} from 'vue-i18n';
+import { mdiChevronDown, mdiLogout } from '@mdi/js';
+import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
+
+import { useUserStore } from '@/store/user';
+
 
 const i18n = useI18n();
 const store = useUserStore();

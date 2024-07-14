@@ -1,4 +1,4 @@
-# Copyright 2022-2023 Roman Ondráček
+# Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ stages:
   - build
 
 .pnpm-template: &pnpm-template
-  image: registry.gitlab.com/sbc-pdu/central-management/frontend:testing
+  image: ${CI_REGISTRY}/sbc-pdu/central-management/frontend:testing
   before_script:
     - pnpm config set store-dir .pnpm-store
     - cd webapp/

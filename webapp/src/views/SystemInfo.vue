@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ limitations under the License.
 		<v-table v-if='info !== null'>
 			<tbody>
 				<tr>
-					<th colspan='2' style='background-color: #f5f5f5;'>
+					<th colspan='2' :class='subheaderClass'>
 						{{ $t('core.system.info.chip.title') }}
 					</th>
 				</tr>
@@ -39,7 +39,7 @@ limitations under the License.
 				</tr>
 				<template v-for='networkIface in info.network' :key='networkIface.name'>
 					<tr>
-						<th colspan='2' style='background-color: #f5f5f5;'>
+						<th colspan='2' :class='subheaderClass'>
 							{{ $t('core.system.info.network.title', {name: networkIface.name}) }}
 						</th>
 					</tr>
@@ -65,7 +65,9 @@ limitations under the License.
 						<th>{{ $t('core.system.info.network.ipv6.title') }}</th>
 						<td>
 							<ul>
-								<li v-for='address in networkIface.ipv6.addresses' :key='address'>{{ address }}</li>
+								<li v-for='address in networkIface.ipv6.addresses' :key='address'>
+									{{ address }}
+								</li>
 							</ul>
 						</td>
 					</tr>
@@ -73,7 +75,9 @@ limitations under the License.
 						<th>{{ $t('core.system.info.network.dns.title') }}</th>
 						<td>
 							<ul>
-								<li v-for='address in networkIface.dns' :key='address'>{{ address }}</li>
+								<li v-for='address in networkIface.dns' :key='address'>
+									{{ address }}
+								</li>
 							</ul>
 						</td>
 					</tr>
@@ -92,7 +96,7 @@ limitations under the License.
 					</tr>
 				</template>
 				<tr>
-					<th colspan='2' style='background-color: #f5f5f5;'>
+					<th colspan='2' :class='subheaderClass'>
 						{{ $t('core.system.info.heap.title') }}
 					</th>
 				</tr>
@@ -105,7 +109,7 @@ limitations under the License.
 					<td>{{ convertBytesToReadableFormat(info.heap.free) }}</td>
 				</tr>
 				<tr>
-					<th colspan='2' style='background-color: #f5f5f5;'>
+					<th colspan='2' :class='subheaderClass'>
 						{{ $t('core.system.info.firmware.title') }}
 					</th>
 				</tr>
@@ -127,58 +131,69 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {mdiCheck, mdiClose} from '@mdi/js';
-import {Head} from '@vueuse/head';
-import {ref} from 'vue';
+import { mdiCheck, mdiClose } from '@mdi/js';
+import { Head } from '@vueuse/head';
+import humanizeDuration from 'humanize-duration';
+import { storeToRefs } from 'pinia';
+import { computed, ComputedRef, onBeforeMount, ref } from 'vue';
+import { useTheme } from 'vuetify';
 
 import Card from '@/components/Card.vue';
-import {useLoadingSpinnerStore} from '@/store/loadingSpinner';
 import SystemService from '@/services/SystemService';
-import {SystemInfo} from '@/types/system';
+import { useLoadingSpinnerStore } from '@/store/loadingSpinner';
+import { useLocaleStore } from '@/store/locale';
+import { SystemInfo } from '@/types/system';
 
 const loadingSpinner = useLoadingSpinnerStore();
+const localeStore = useLocaleStore();
+const { getLocale: language } = storeToRefs(localeStore);
 const service = new SystemService();
+const theme = useTheme();
 
 const info = ref<SystemInfo|null>(null);
+const subheaderClass: ComputedRef<string> = computed((): string => {
+	if (theme.global.name.value === 'dark') {
+		return 'bg-grey-darken-3';
+	}
+	return 'bg-grey-lighten-3';
+});
 
 /**
  * Loads system information
  */
-function loadSystemInfo() {
+async function loadSystemInfo(): Promise<void> {
 	loadingSpinner.show();
-	service.getInfo().then((response: SystemInfo) => {
-		info.value = response;
-	}).finally(() => {
+	try {
+		info.value = await service.getInfo();
+	} finally {
 		loadingSpinner.hide();
-	});
+	}
 }
 
-loadSystemInfo();
+onBeforeMount(async () => await loadSystemInfo());
 
 /**
  * Converts bytes to a readable format
  * @param {number} bytes The bytes to convert
- * @returns {string} Bytes in a readable format
+ * @return {string} Bytes in a readable format
  */
 function convertBytesToReadableFormat(bytes: number): string {
 	const sizes = ['B', 'kB', 'MB', 'GB', 'TB'];
 	if (bytes === 0) {
 		return '0 B';
 	}
-	const i = Math.floor(Math.log(bytes) / Math.log(1024));
-	return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
+	const i = Math.floor(Math.log(bytes) / Math.log(1_024));
+	return Math.round(bytes / Math.pow(1_024, i)) + ' ' + sizes[i];
 }
 
 /**
  * Formats the uptime
  * @param {number} uptime The uptime in seconds
- * @returns {string} The formatted uptime
+ * @return {string} The formatted uptime
  */
 function formatUptime(uptime: number): string {
-	const days = Math.floor(uptime / 86400);
-	const hours = Math.floor((uptime % 86400) / 3600);
-	const minutes = Math.floor(((uptime % 86400) % 3600) / 60);
-	const seconds = Math.floor(((uptime % 86400) % 3600) % 60);
-	return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+	return humanizeDuration(uptime * 1_000, {
+		language: language.value,
+	});
 }
 </script>

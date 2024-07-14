@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {createI18n} from 'vue-i18n';
+import { createI18n } from 'vue-i18n';
 
 import cs from '@/locales/cs.json';
 import en from '@/locales/en.json';
@@ -26,7 +26,7 @@ export default createI18n<MessageSchema, Locales>({
 	datetimeFormats: {
 		cs: {
 			short: {
-				year: 'numeric', month: 'short', day: 'numeric'
+				year: 'numeric', month: 'short', day: 'numeric',
 			},
 			normal: {
 				year: 'numeric', month: 'short', day: 'numeric',
@@ -34,12 +34,12 @@ export default createI18n<MessageSchema, Locales>({
 			},
 			long: {
 				year: 'numeric', month: 'short', day: 'numeric',
-				weekday: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric'
-			}
+				weekday: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric',
+			},
 		},
 		en: {
 			short: {
-				year: 'numeric', month: 'short', day: 'numeric'
+				year: 'numeric', month: 'short', day: 'numeric',
 			},
 			normal: {
 				year: 'numeric', month: 'short', day: 'numeric',
@@ -47,9 +47,9 @@ export default createI18n<MessageSchema, Locales>({
 			},
 			long: {
 				year: 'numeric', month: 'short', day: 'numeric',
-				weekday: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric'
-			}
-		}
+				weekday: 'short', hour: 'numeric', minute: 'numeric', second: 'numeric',
+			},
+		},
 	},
 	pluralRules: {
 		cs: (choice: number, choicesLength: number): number => {

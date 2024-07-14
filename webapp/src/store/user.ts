@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Sentry from '@sentry/vue';
-import {defineStore} from 'pinia';
+import {
+	setUser as setSentryUser,
+	type User as SentryUser,
+} from '@sentry/vue';
+import { type AxiosBasicCredentials } from 'axios';
+import { defineStore } from 'pinia';
 
 import router from '@/router';
 import AuthenticationService from '@/services/AuthenticationService';
-import {Credentials} from '@/types/auth';
-import {AxiosBasicCredentials} from 'axios';
+import { type Credentials } from '@/types/auth';
 
 /**
  * User store state
@@ -44,35 +47,36 @@ export const useUserStore = defineStore('user', {
 		setUserInfo(credentials: Credentials): void {
 			this.password = credentials.password;
 			this.username = credentials.username;
-			const sentryUser: Sentry.User = {
-				username: this.username as string,
+			const sentryUser: SentryUser = {
+				username: this.username,
 				ip_address: '{{auto}}',
 			};
-			Sentry.setUser(sentryUser);
+			setSentryUser(sentryUser);
 		},
 		/**
 		 * Sign in
 		 * @param {Credentials} credentials User credentials
 		 */
-		signIn(credentials: Credentials): Promise<void> {
+		async signIn(credentials: Credentials): Promise<void> {
 			const service = new AuthenticationService();
-			return service.verify(credentials).then(() => this.setUserInfo(credentials));
+			await service.verify(credentials);
+			this.setUserInfo(credentials);
 		},
 		/**
 		 * Sign out
 		 */
-		signOut(): void {
+		async signOut(): Promise<void> {
 			this.password = null;
 			this.username = null;
-			Sentry.setUser(null);
-			router.push('/auth/sign/in');
-		}
+			setSentryUser(null);
+			await router.push('/auth/sign/in');
+		},
 	},
 	getters: {
 		/**
 		 * Checks if user is logged in
 		 * @param {UserState} state User state
-		 * @returns {boolean} True if user is logged in
+		 * @return {boolean} True if user is logged in
 		 */
 		isLoggedIn(state: UserState): boolean {
 			return !(state.username === null || state.password === null);
@@ -95,7 +99,7 @@ export const useUserStore = defineStore('user', {
 		/**
 		 * Returns user email
 		 * @param {UserState} state User state
-		 * @returns {string|null} User email
+		 * @return {string|null} User email
 		 */
 		getName(state: UserState): string | null {
 			return state.username;

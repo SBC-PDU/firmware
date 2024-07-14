@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -74,17 +74,17 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {mdiRefresh} from '@mdi/js';
-import {Head} from '@vueuse/head';
-import {ref} from 'vue';
-import {useI18n} from 'vue-i18n';
-import {useDisplay} from 'vuetify';
-import {toast} from 'vue3-toastify';
+import { mdiRefresh } from '@mdi/js';
+import { Head } from '@vueuse/head';
+import { onBeforeMount, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
+import { useDisplay } from 'vuetify';
 
 import Card from '@/components/Card.vue';
-import {useLoadingSpinnerStore} from '@/store/loadingSpinner';
 import OutputsService from '@/services/OutputsService';
-import {Output} from '@/types/outputs';
+import { useLoadingSpinnerStore } from '@/store/loadingSpinner';
+import { Output } from '@/types/outputs';
 
 const display = useDisplay();
 const i18n = useI18n();
@@ -96,54 +96,41 @@ const outputs = ref<Output[]>([]);
 /**
  * Load data from API
  */
-function loadData() {
+async function loadData(): Promise<void> {
 	loadingSpinner.show();
-	service.get()
-		.then((response: Output[]) => {
-			outputs.value = response;
-		})
-		.catch(() => {
-			toast.error(i18n.t('core.dashboard.outputs.messages.error.load').toString());
-		})
-		.finally(() => {
-			loadingSpinner.hide();
-		});
+	try {
+		outputs.value = await service.get();
+	} catch {
+		toast.error(i18n.t('core.dashboard.outputs.messages.error.load'));
+	} finally {
+		loadingSpinner.hide();
+	}
 }
 
 /**
  * Switches output
  * @param {Output} output Output to switch
  */
-function switchOutput(output: Output): Promise<void> {
+async function switchOutput(output: Output): Promise<void> {
 	loadingSpinner.show();
-	return service.switch(output.index, output.enabled)
-		.then(() => {
-			if (output.enabled) {
-				toast.success(i18n.t('core.dashboard.outputs.messages.success.switchedOn', {
-					index: output.index
-				}).toString());
-			} else {
-				toast.success(i18n.t('core.dashboard.outputs.messages.success.switchedOff', {
-					index: output.index
-				}).toString());
-			}
-		})
-		.catch(() => {
-			if (output.enabled) {
-				toast.error(i18n.t('core.dashboard.outputs.messages.error.switchedOn', {
-					index: output.index
-				}).toString());
-			} else {
-				toast.error(i18n.t('core.dashboard.outputs.messages.error.switchedOff', {
-					index: output.index
-				}).toString());
-			}
-		})
-		.finally(() => {
-			loadData();
-			loadingSpinner.hide();
-		});
+	try {
+		await service.switch(output.index, output.enabled);
+		if (output.enabled) {
+			toast.success(i18n.t('core.dashboard.outputs.messages.success.switchedOn', { index: output.index }));
+		} else {
+			toast.success(i18n.t('core.dashboard.outputs.messages.success.switchedOff', { index: output.index }));
+		}
+	} catch {
+		if (output.enabled) {
+			toast.error(i18n.t('core.dashboard.outputs.messages.error.switchedOn', { index: output.index }));
+		} else {
+			toast.error(i18n.t('core.dashboard.outputs.messages.error.switchedOff', { index: output.index }));
+		}
+	} finally {
+		await loadData();
+		loadingSpinner.hide();
+	}
 }
 
-loadData();
+onBeforeMount(async () => await loadData());
 </script>

@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,12 +25,11 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {mdiEye, mdiEyeOff} from '@mdi/js';
-import {ref, Ref} from 'vue';
+import { mdiEye, mdiEyeOff } from '@mdi/js';
+import { ref, Ref } from 'vue';
 
 const showPassword: Ref<boolean> = ref(false);
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const props = defineProps({
+defineProps({
 	modelValue: {
 		type: String,
 		required: true,

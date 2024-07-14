@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {defineStore} from 'pinia';
-import {preferredLocale} from 'preferred-locale';
+import { defineStore } from 'pinia';
+import { preferredLocale } from 'preferred-locale';
 
 import LocaleHelper from '@/helpers/localeHelper';
 import i18n from '@/plugins/i18n';
@@ -38,18 +38,18 @@ interface Locale {
 
 export const useLocaleStore = defineStore('locale', {
 	state: (): LocaleState => ({
-		locale: preferredLocale('en', ['cs', 'en'], {languageOnly: true}),
+		locale: preferredLocale('en', ['cs', 'en'], { languageOnly: true }),
 	}),
 	actions: {
 		/**
 		 * Sets a new locale
-		 * @param locale Locale to set
+		 * @param {string} locale Locale to set
 		 */
 		setLocale(locale: string): void {
 			// @ts-ignore
 			i18n.global.locale.value = locale;
 			this.locale = locale;
-		}
+		},
 	},
 	getters: {
 		/**
@@ -58,8 +58,8 @@ export const useLocaleStore = defineStore('locale', {
 		 */
 		getAvailableLocales(): Locale[] {
 			return [
-				{code: 'cs', flag: '🇨🇿'},
-				{code: 'en', flag: '🇬🇧'},
+				{ code: 'cs', flag: '🇨🇿' },
+				{ code: 'en', flag: '🇬🇧' },
 			];
 		},
 		/**

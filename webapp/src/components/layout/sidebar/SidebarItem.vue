@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,10 +30,10 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {Ref, ref, watchEffect} from 'vue';
-import {useRoute} from 'vue-router';
+import { Ref, ref, watchEffect } from 'vue';
+import { useRoute } from 'vue-router';
 
-import {SidebarLink} from '@/types/sidebar';
+import { SidebarLink } from '@/types/sidebar';
 
 interface Props {
 	/// Sidebar item to render

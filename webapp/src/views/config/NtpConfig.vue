@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ limitations under the License.
 		<template #title>
 			{{ $t('core.config.ntp.title') }}
 		</template>
-		<v-form ref='form' @submit.prevent='submit' v-if='config !== null'>
+		<v-form v-if='config !== null' ref='form' @submit.prevent='submit'>
 			<div
 				v-for='(server, index) in config.servers'
 				:key='index'
@@ -36,21 +36,21 @@ limitations under the License.
 					required
 					:prepend-inner-icon='mdiServer'
 				>
-					<template v-slot:append v-if='display.smAndUp.value'>
-						<v-btn-group class='my-auto' density='compact'>
+					<template v-if='display.smAndUp.value' #append-inner>
+						<v-btn-group class='pb-3' density='compact'>
 							<v-btn
 								color='success'
-								@click='config.servers.push("")'
 								:disabled='config.servers.length === 2'
 								size='small'
+								@click='config.servers.push("")'
 							>
 								<v-icon :icon='mdiPlus' />
 							</v-btn>
 							<v-btn
 								color='red'
-								@click='config.servers.splice(index, 1)'
 								:disabled='config.servers.length === 1'
 								size='small'
+								@click='config.servers.splice(index, 1)'
 							>
 								<v-icon :icon='mdiMinus' />
 							</v-btn>
@@ -80,19 +80,19 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {mdiPencil, mdiMapClock, mdiServer, mdiMinus, mdiPlus} from '@mdi/js';
-import {Head} from '@vueuse/head';
-import {Ref, ref} from 'vue';
-import {useI18n} from 'vue-i18n';
-import {toast} from 'vue3-toastify';
-import {useDisplay} from 'vuetify';
-import {VForm} from 'vuetify/components';
+import { mdiPencil, mdiMapClock, mdiServer, mdiMinus, mdiPlus } from '@mdi/js';
+import { Head } from '@vueuse/head';
+import { onBeforeMount, Ref, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
+import { useDisplay } from 'vuetify';
+import { VForm } from 'vuetify/components';
 
 import Card from '@/components/Card.vue';
 import FormValidator from '@/helpers/formValidator';
 import ConfigService from '@/services/ConfigService';
-import {useLoadingSpinnerStore} from '@/store/loadingSpinner';
-import {NtpConfig, NtpTimezone} from '@/types/config';
+import { useLoadingSpinnerStore } from '@/store/loadingSpinner';
+import { NtpConfig, NtpTimezone } from '@/types/config';
 
 const display = useDisplay();
 const i18n = useI18n();
@@ -100,18 +100,18 @@ const loadingSpinner = useLoadingSpinnerStore();
 const service = new ConfigService();
 
 const config = ref<NtpConfig|null>(null);
-const form: Ref<typeof VForm | null> = ref(null);
+const form: Ref<VForm | null> = ref(null);
 
 /**
  * Loads NTP configuration
  */
-function loadData() {
+async function loadData(): Promise<void> {
 	loadingSpinner.show();
-	service.getNtp().then((response: NtpConfig) => {
-		config.value = response;
-	}).finally(() => {
+	try {
+		config.value = await service.getNtp();
+	} finally {
 		loadingSpinner.hide();
-	});
+	}
 }
 
 /**
@@ -121,22 +121,20 @@ async function submit(): Promise<void> {
 	if (form.value === null) {
 		return;
 	}
-	const {valid} = await form.value.validate();
+	const { valid } = await form.value.validate();
 	if (!valid || config.value === null) {
 		return;
 	}
 	loadingSpinner.show();
-	await service.setNtp(config.value as NtpConfig)
-		.then(() => {
-			toast.success(i18n.t('core.config.ntp.messages.success'));
-		})
-		.catch(() => {
-			toast.error(i18n.t('core.config.ntp.messages.error'));
-		})
-		.finally(() => {
-			loadingSpinner.hide();
-		});
+	try {
+		await service.setNtp(config.value);
+		toast.success(i18n.t('core.config.ntp.messages.success'));
+	} catch {
+		toast.error(i18n.t('core.config.ntp.messages.error'));
+	} finally {
+		loadingSpinner.hide();
+	}
 }
 
-loadData();
+onBeforeMount(async () => await loadData());
 </script>

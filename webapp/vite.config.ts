@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,62 +13,75 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import child_process from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath, URL } from 'node:url';
+
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
-import {sentryVitePlugin} from '@sentry/vite-plugin';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import UnheadVite from '@unhead/addons/vite';
 import vue from '@vitejs/plugin-vue';
-import * as child_process from 'child_process';
-import path from 'path';
-import {fileURLToPath, URL} from 'node:url';
-import {defineConfig, loadEnv} from 'vite';
-import vuetify, {transformAssetUrls} from 'vite-plugin-vuetify';
+import { defineConfig, loadEnv } from 'vite';
+import { viteSingleFile } from 'vite-plugin-singlefile';
+import VueDevTools from 'vite-plugin-vue-devtools';
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import svgLoader from 'vite-svg-loader';
 
 // Git commit hash
 const gitCommitHash = child_process.execSync('git rev-parse --short HEAD').toString().trim();
 
 // https://vitejs.dev/config/
-export default defineConfig(({mode}) => {
+export default defineConfig(({ command, mode }) => {
 	const env = loadEnv(mode, process.cwd(), '');
 	return {
-		build: {
-			rollupOptions: {
-				output: {
-					entryFileNames: '[hash].js',
-					chunkFileNames: '[hash].js',
-					assetFileNames: '[hash].[ext]'
-				}
-			}
-		},
+		base: '/',
 		plugins: [
+			VueDevTools(),
 			vue({
-				template: {transformAssetUrls}
+				template: { transformAssetUrls },
 			}),
-			// https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
+			// https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin
 			vuetify({
-				autoImport: true,
+				autoImport: {
+					labs: true,
+				},
 			}),
 			UnheadVite(),
 			VueI18nPlugin({
 				include: [path.resolve(__dirname, 'src/locales/**')],
 			}),
-			svgLoader({defaultImport: 'url'}),
+			svgLoader({ defaultImport: 'url' }),
 			(env.VITE_SENTRY_ENABLED || process.env.SENTRY_ENABLED) === 'true' && sentryVitePlugin({
-				include: ['src'],
-				ignore: ['node_modules', 'vite.config.ts'],
-				release: gitCommitHash,
+				release: {
+					name: gitCommitHash,
+				},
 				url: env.VITE_SENTRY_URL || process.env.SENTRY_URL,
 				org: env.VITE_SENTRY_ORG || process.env.SENTRY_ORG,
 				project: env.VITE_SENTRY_PROJECT || process.env.SENTRY_PROJECT,
 				authToken: env.VITE_SENTRY_AUTH_TOKEN || process.env.SENTRY_AUTH_TOKEN,
 			}),
+			...command === 'build' ? [
+				viteSingleFile({
+					removeViteModuleLoader: true,
+				}),
+			] : [],
 		],
 		define: {
 			__GIT_COMMIT_HASH__: JSON.stringify(gitCommitHash),
 		},
+		optimizeDeps: {
+			entries: [
+				'src/components/**/*.{js,ts,vue}',
+				'src/layouts/**/*.{js,ts,vue}',
+				'src/pages/**/*.{js,ts,vue}',
+				'src/App.vue',
+				'src/main.ts',
+			],
+			exclude: ['vuetify'],
+		},
 		resolve: {
 			alias: {
-				'@': fileURLToPath(new URL('./src', import.meta.url))
+				'@': fileURLToPath(new URL('./src', import.meta.url)),
 			},
 			extensions: [
 				'.js',
@@ -81,7 +94,7 @@ export default defineConfig(({mode}) => {
 			],
 		},
 		server: {
-			port: 3000,
+			port: 3_000,
 		},
 	};
 });

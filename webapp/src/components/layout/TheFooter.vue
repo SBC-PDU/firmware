@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,17 +15,13 @@ limitations under the License.
 -->
 
 <template>
-	<v-footer
-		:absolute='false'
-		app
-		color='primary'
-	>
-		<span class='mr-auto ml-auto'>
-			&copy; 2022-{{ currentYear }}
-			<a class='text-white' href='https://www.romanondracek.cz/'>
-				Roman Ondráček
-			</a>
-		</span>
+	<v-footer color='primary' app>
+		<v-row justify='center' no-gutters>
+			<v-col class='text-center' cols='12'>
+				&copy; 2022-{{ currentYear }}
+				<a class='text-white' href='https://www.romanondracek.cz/'>Roman Ondráček</a>
+			</v-col>
+		</v-row>
 	</v-footer>
 </template>
 

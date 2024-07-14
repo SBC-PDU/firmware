@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type {App} from 'vue';
+
+import { type App } from 'vue';
 
 import head from '@/plugins/head';
 import i18n from '@/plugins/i18n';
-import toastify, {ToastifyOptions} from '@/plugins/toastify';
-import vuetify from '@/plugins/vuetify';
-import pinia from '@/store';
-import router from '@/router';
 import registerSentry from '@/plugins/sentry';
+import toastify, { ToastifyOptions } from '@/plugins/toastify';
+import vuetify from '@/plugins/vuetify';
+import router from '@/router';
+import pinia from '@/store';
 
-export function registerPlugins(app: App) {
+/**
+ * Registers application plugins
+ * @param {App} app Vue.js application instance
+ */
+export function registerPlugins(app: App): void {
 	app
 		.use(pinia)
 		.use(router)

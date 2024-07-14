@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,46 +15,55 @@ limitations under the License.
 -->
 
 <template :key='locale'>
-	<LoadingSpinner />
-	<router-view/>
+	<v-theme-provider :theme='theme.global.name.value'>
+		<v-app>
+			<LoadingSpinner />
+			<router-view />
+		</v-app>
+	</v-theme-provider>
 </template>
 
 <script lang='ts' setup>
-import {storeToRefs} from 'pinia';
-import {getActiveHead} from 'unhead';
-import {ref, watch} from 'vue';
-import {useI18n} from 'vue-i18n';
-import {toast} from 'vue3-toastify';
+import { storeToRefs } from 'pinia';
+import { useHead } from 'unhead';
+import { onBeforeMount, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useTheme } from 'vuetify';
 
 import LoadingSpinner from '@/components/layout/LoadingSpinner.vue';
-import {useLocaleStore} from '@/store/locale';
+import { useLocaleStore } from '@/store/locale';
 
 const localeStore = useLocaleStore();
-const {locale} = storeToRefs(localeStore);
+const { locale } = storeToRefs(localeStore);
 const i18n = useI18n();
-
-watch(locale, setLocale);
-
-const siteName = ref(i18n.t('core.title').toString());
-const headOptions = ref({
-	titleTemplate: '%s %separator %siteName',
-	templateParams: {
-		siteName: siteName,
-		separator: '|',
-	},
-});
-setLocale(null);
+const theme = useTheme();
 
 /**
- * Sets locale
- * @param {string | null} newLocale New locale
+ * Sets head options
+ * @param {string} newLocale New locale
  */
-function setLocale(newLocale: string | null = null): void {
-	const localeToSet = newLocale ?? locale.value;
-	i18n.locale.value = localeToSet;
-	siteName.value = i18n.t('core.title').toString();
-	getActiveHead()?.push(headOptions);
-	toast.success(i18n.t('core.messages.localeChanged', {lang: i18n.t(`core.locales.${localeToSet}`)}));
+function setHeadOptions(newLocale: string): void {
+	useHead({
+		htmlAttrs: {
+			lang: newLocale,
+		},
+		titleTemplate: '%s %separator %siteName',
+		templateParams: {
+			siteName: i18n.t('core.title'),
+			separator: '|',
+		},
+	});
 }
 
+onBeforeMount(() => {
+	if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+		theme.global.name.value = 'dark';
+	} else {
+		theme.global.name.value = 'light';
+	}
+	localeStore.setLocale(locale.value);
+	setHeadOptions(locale.value);
+});
+
+watch(locale, setHeadOptions);
 </script>

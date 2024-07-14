@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 import * as Sentry from '@sentry/vue';
-import {BrowserTracing} from '@sentry/tracing';
-import {App} from 'vue';
-import {Router} from 'vue-router';
+import { type App } from 'vue';
+import { type Router } from 'vue-router';
 
 /**
  * Registers Sentry integration
@@ -31,23 +30,17 @@ export default function registerSentry(app: App, router: Router): void {
 		app,
 		dsn: import.meta.env.VITE_SENTRY_DSN,
 		integrations: [
-			new BrowserTracing({
-				routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-				tracePropagationTargets: [],
+			Sentry.browserTracingIntegration({
+				router: router,
+				routeLabel: 'path',
 			}),
-			new Sentry.Replay(),
 		],
-
-		// This sets the sample rate to be 10%. You may want this to be 100% while
-		// in development and sample at a lower rate in production
-		replaysSessionSampleRate: 0.1,
-		// If the entire session is not sampled, use the below sample rate to sample
-		// sessions when an error occurs.
-		replaysOnErrorSampleRate: 1.0,
 		// Set tracesSampleRate to 1.0 to capture 100%
 		// of transactions for performance monitoring.
 		// We recommend adjusting this value in production
-		tracesSampleRate: 1.0,
+		tracesSampleRate: 1,
+		tracePropagationTargets: ['localhost', window.location.hostname, /^\//],
 		release: __GIT_COMMIT_HASH__,
+		trackComponents: true,
 	});
 }

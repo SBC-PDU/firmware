@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ export default class FormValidator {
 	 * @param {unknown} value Value to check
 	 * @param {string} errorMessage Error message to return if the value is not valid
 	 * @return {boolean|string} True if the value is valid, error message otherwise
-	 * @eslint-disable-next-line @typescript-eslint/no-explicit-any
 	 */
 	public static isRequired(value: unknown, errorMessage: string): boolean | string {
 		return !!value || errorMessage;

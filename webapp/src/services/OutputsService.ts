@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {AxiosResponse} from 'axios';
+import { type AxiosResponse } from 'axios';
 
-import {ApiClient} from '@/services/ApiClient';
-import {Output} from '@/types/outputs';
+import { ApiClient } from '@/services/ApiClient';
+import { type Output } from '@/types/outputs';
 
 /**
  * Power outputs service
@@ -25,11 +25,11 @@ export default class OutputsService extends ApiClient {
 
 	/**
 	 * Returns current outputs state
-	 * @returns {Promise<Output[]>} Outputs state
+	 * @return {Promise<Output[]>} Outputs state
 	 */
-	public get(): Promise<Output[]> {
-		return this.getClient().get('outputs')
-			.then((response: AxiosResponse) => response.data as Output[]);
+	public async get(): Promise<Output[]> {
+		const response: AxiosResponse<Output[]> = await this.getClient().get('/outputs');
+		return response.data;
 	}
 
 	/**
@@ -37,8 +37,8 @@ export default class OutputsService extends ApiClient {
 	 * @param {number} index Output index
 	 * @param {boolean} state Output state
 	 */
-	public switch(index: number, state: boolean): Promise<AxiosResponse> {
-		return this.getClient().post('outputs/switch', {
+	public async switch(index: number, state: boolean): Promise<void> {
+		await this.getClient().post('/outputs/switch', {
 			output: index,
 			state: state,
 		});

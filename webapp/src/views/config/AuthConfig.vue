@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ limitations under the License.
 		<template #title>
 			{{ $t('core.config.auth.title') }}
 		</template>
-		<v-form ref='form' @submit.prevent='submit' v-if='config !== null'>
+		<v-form v-if='config !== null' ref='form' @submit.prevent='submit'>
 			<v-text-field
 				v-model='config.username'
 				:label='$t("core.config.auth.fields.username")'
@@ -62,21 +62,21 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {mdiAccount, mdiKey, mdiPencil} from '@mdi/js';
-import {Head} from '@vueuse/head';
-import {Ref, ref} from 'vue';
-import {useI18n} from 'vue-i18n';
-import {toast} from 'vue3-toastify';
-import {VForm} from 'vuetify/components';
+import { mdiAccount, mdiKey, mdiPencil } from '@mdi/js';
+import { Head } from '@vueuse/head';
+import { AxiosError } from 'axios';
+import { Ref, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
+import { VForm } from 'vuetify/components';
 
 import Card from '@/components/Card.vue';
 import PasswordField from '@/components/PasswordField.vue';
 import FormValidator from '@/helpers/formValidator';
 import AuthenticationService from '@/services/AuthenticationService';
-import {useLoadingSpinnerStore} from '@/store/loadingSpinner';
-import {AuthConfig} from '@/types/auth';
-import {useUserStore} from '@/store/user';
-import {AxiosError} from 'axios';
+import { useLoadingSpinnerStore } from '@/store/loadingSpinner';
+import { useUserStore } from '@/store/user';
+import { AuthConfig } from '@/types/auth';
 
 const i18n = useI18n();
 const loadingSpinner = useLoadingSpinnerStore();
@@ -88,7 +88,7 @@ const config = ref<AuthConfig>({
 	oldPassword: '',
 	newPassword: '',
 });
-const form: Ref<typeof VForm | null> = ref(null);
+const form: Ref<VForm | null> = ref(null);
 
 /**
  * Loads auth configuration
@@ -104,29 +104,29 @@ async function submit(): Promise<void> {
 	if (form.value === null) {
 		return;
 	}
-	const {valid} = await form.value.validate();
+	const { valid } = await form.value.validate();
 	if (!valid) {
 		return;
 	}
 	loadingSpinner.show();
-	await service.setCredentials(config.value)
-		.then(() => {
-			userStore.setUserInfo({
-				username: config.value.username,
-				password: config.value.newPassword,
-			});
-			toast.success(i18n.t('core.config.auth.messages.success'));
-		})
-		.catch((error: AxiosError) => {
+	try {
+		await service.setCredentials(config.value);
+		userStore.setUserInfo({
+			username: config.value.username,
+			password: config.value.newPassword,
+		});
+		toast.success(i18n.t('core.config.auth.messages.success'));
+	} catch (error) {
+		if (error instanceof AxiosError) {
 			if (error.response?.data === 'Incorrect current password.') {
 				toast.error(i18n.t('core.config.auth.messages.incorrectOldPassword'));
 				return;
 			}
-			toast.error(i18n.t('core.config.auth.messages.error'));
-		})
-		.finally(() => {
-			loadingSpinner.hide();
-		});
+		}
+		toast.error(i18n.t('core.config.auth.messages.error'));
+	} finally {
+		loadingSpinner.hide();
+	}
 }
 
 loadData();

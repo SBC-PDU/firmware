@@ -15,19 +15,30 @@ limitations under the License.
 -->
 
 <template>
-	<Head>
-		<title>{{ $t('core.error.404.title') }}</title>
-	</Head>
-	<Card>
-		<template #title>
-			{{ $t('core.error.404.header') }} - {{ $t('core.error.404.title') }}
-		</template>
-		<p>{{ $t('core.error.404.message') }}</p>
-	</Card>
+	<v-btn
+		v-model='themeSwitch'
+		:icon='themeSwitch ? mdiWeatherNight : mdiWeatherSunny'
+		@click='toggleTheme'
+	/>
 </template>
 
 <script lang='ts' setup>
-import { Head } from '@vueuse/head';
+import { mdiWeatherNight, mdiWeatherSunny } from '@mdi/js';
+import { onBeforeMount, ref, type Ref } from 'vue';
+import { useTheme } from 'vuetify';
 
-import Card from '@/components/Card.vue';
+const theme = useTheme();
+const themeSwitch: Ref<boolean> = ref(false);
+
+onBeforeMount((): void => {
+	themeSwitch.value = theme.global.name.value === 'dark';
+});
+
+/**
+ * Toggles the theme
+ */
+function toggleTheme(): void {
+	theme.global.name.value = theme.global.name.value === 'dark' ? 'light' : 'dark';
+	themeSwitch.value = theme.global.name.value === 'dark';
+}
 </script>

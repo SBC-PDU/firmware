@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,20 +23,24 @@ limitations under the License.
 		<v-progress-circular
 			indeterminate
 			color='primary'
-			bg-color='white'
+			bg-color='background'
 			size='128'
 			width='16'
 		/>
 		<div v-if='text !== null' class='mt-8'>
-			<h2 class='text-white'>{{ text }}</h2>
+			<h2 class='text-white'>
+				{{ text }}
+			</h2>
 		</div>
 	</v-overlay>
 </template>
 
 <script lang='ts' setup>
-import {useLoadingSpinnerStore} from '@/store/loadingSpinner';
-import {storeToRefs} from 'pinia';
+import { storeToRefs } from 'pinia';
+import { useTheme } from 'vuetify';
+
+import { useLoadingSpinnerStore } from '@/store/loadingSpinner';
 
 const store = useLoadingSpinnerStore();
-const {isEnabled, getText: text} = storeToRefs(store);
+const { isEnabled, getText: text } = storeToRefs(store);
 </script>

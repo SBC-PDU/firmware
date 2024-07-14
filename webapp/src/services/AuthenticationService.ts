@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {AxiosResponse} from 'axios';
+import { type AxiosResponse } from 'axios';
 
-import {ApiClient} from '@/services/ApiClient';
-import {AuthConfig, Credentials} from '@/types/auth';
+import { ApiClient } from '@/services/ApiClient';
+import { type AuthConfig, type Credentials } from '@/types/auth';
 
 /**
  * Authentication service
@@ -27,20 +27,20 @@ export default class AuthenticationService extends ApiClient {
 	 * Sets user credentials
 	 * @param {AuthConfig} config Authentication configuration
 	 */
-	public setCredentials(config: AuthConfig): Promise<AxiosResponse> {
-		return this.getClient().put('auth', config);
+	public async setCredentials(config: AuthConfig): Promise<void> {
+		await this.getClient().put('/auth', config);
 	}
 
 	/**
 	 * Verifies user credentials
 	 * @param {Credentials} credentials User credentials
-	 * @returns {Promise<AxiosResponse>} Axios response
+	 * @return {Promise<AxiosResponse>} Axios response
 	 */
-	public verify(credentials: Credentials): Promise<AxiosResponse> {
-		return this.getClient().get('auth', {auth: {
+	public async verify(credentials: Credentials): Promise<void> {
+		await this.getClient().get('/auth', { auth: {
 			username: credentials.username,
 			password: credentials.password,
-		}});
+		} });
 	}
 
 }

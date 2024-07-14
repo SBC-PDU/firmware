@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,10 +17,9 @@ limitations under the License.
 <template>
 	<v-navigation-drawer
 		v-model='isVisible'
-		color='primary'
 		:rail='isMinimized'
 	>
-		<SidebarItems :items='items()'/>
+		<SidebarItems :items='items()' />
 		<template #append>
 			<v-list>
 				<v-list-item density='compact' style='margin-top: auto;' @click.stop='sidebarStore.toggleSize()'>
@@ -34,29 +33,36 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {mdiChevronLeft, mdiChevronRight, mdiCog, mdiInformationOutline, mdiLogin, mdiViewDashboard} from '@mdi/js';
-import {storeToRefs} from 'pinia';
-import {useI18n} from 'vue-i18n';
-import {useDisplay} from 'vuetify';
+import {
+	mdiChevronLeft,
+	mdiChevronRight,
+	mdiCog,
+	mdiInformationOutline,
+	mdiLogin,
+	mdiViewDashboard,
+} from '@mdi/js';
+import { storeToRefs } from 'pinia';
+import { useI18n } from 'vue-i18n';
+import { useDisplay } from 'vuetify';
 
 import SidebarItems from '@/components/layout/sidebar/SidebarItems.vue';
-import {useSidebarStore} from '@/store/sidebar';
-import {useUserStore} from '@/store/user';
-import {SidebarLink} from '@/types/sidebar';
+import { useSidebarStore } from '@/store/sidebar';
+import { useUserStore } from '@/store/user';
+import { SidebarLink } from '@/types/sidebar';
 
 const i18n = useI18n();
 const display = useDisplay();
 const sidebarStore = useSidebarStore();
 const userStore = useUserStore();
-const {isLoggedIn} = storeToRefs(userStore);
+const { isLoggedIn } = storeToRefs(userStore);
 
-const {isMinimized, isVisible} = storeToRefs(sidebarStore);
+const { isMinimized, isVisible } = storeToRefs(sidebarStore);
 
 sidebarStore.setVisibility(display.xlAndUp.value);
 
 /**
  * Returns sidebar items
- * @returns {SidebarLink[]} Sidebar items
+ * @return {SidebarLink[]} Sidebar items
  */
 function items(): SidebarLink[] {
 	let links: SidebarLink[];

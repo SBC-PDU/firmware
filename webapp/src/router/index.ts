@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
+import { createRouter, createWebHistory, type NavigationGuardNext, type RouteLocationNormalized, type RouteRecordRaw } from 'vue-router';
 
-import {useUserStore} from '@/store/user';
+import { useUserStore } from '@/store/user';
 
 const routes: RouteRecordRaw[] = [
 	{
@@ -101,7 +101,7 @@ const router = createRouter({
 	routes,
 });
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
 	const userStore = useUserStore();
 	const whitelist = [
 		'BadNotFound',
@@ -109,11 +109,11 @@ router.beforeEach(async (to, from, next) => {
 		'SignIn',
 	];
 	if (!userStore.isLoggedIn && !whitelist.includes(to.name as string)) {
-		let query = {...to.query};
+		let query = { ...to.query };
 		if (to.path !== '/' && to.name !== 'SignIn') {
-			query = {...query, redirect: to.path};
+			query = { ...query, redirect: to.path };
 		}
-		return next({name: 'SignIn', query});
+		return next({ name: 'SignIn', query });
 	}
 	if (to.name === 'SignIn' && userStore.isLoggedIn) {
 		return next((to.query.redirect as string | undefined) ?? '/');

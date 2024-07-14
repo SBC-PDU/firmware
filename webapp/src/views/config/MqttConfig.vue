@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ limitations under the License.
 		<template #title>
 			{{ $t('core.config.mqtt.title') }}
 		</template>
-		<v-form ref='form' @submit.prevent='submit' v-if='config !== null'>
+		<v-form v-if='config !== null' ref='form' @submit.prevent='submit'>
 			<v-text-field
 				v-model='config.uri'
 				:label='$t("core.config.mqtt.fields.uri")'
@@ -62,37 +62,37 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {mdiAccount, mdiKey, mdiPencil, mdiServerNetwork} from '@mdi/js';
-import {Head} from '@vueuse/head';
-import {Ref, ref} from 'vue';
-import {useI18n} from 'vue-i18n';
-import {toast} from 'vue3-toastify';
-import {VForm} from 'vuetify/components';
+import { mdiAccount, mdiKey, mdiPencil, mdiServerNetwork } from '@mdi/js';
+import { Head } from '@vueuse/head';
+import { onBeforeMount, Ref, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { toast } from 'vue3-toastify';
+import { VForm } from 'vuetify/components';
 
 import Card from '@/components/Card.vue';
 import PasswordField from '@/components/PasswordField.vue';
 import FormValidator from '@/helpers/formValidator';
 import ConfigService from '@/services/ConfigService';
-import {useLoadingSpinnerStore} from '@/store/loadingSpinner';
-import {MqttConfig} from '@/types/config';
+import { useLoadingSpinnerStore } from '@/store/loadingSpinner';
+import { MqttConfig } from '@/types/config';
 
 const i18n = useI18n();
 const loadingSpinner = useLoadingSpinnerStore();
 const service = new ConfigService();
 
 const config = ref<MqttConfig|null>(null);
-const form: Ref<typeof VForm | null> = ref(null);
+const form: Ref<VForm | null> = ref(null);
 
 /**
  * Loads MQTT configuration
  */
-function loadData() {
+async function loadData(): Promise<void> {
 	loadingSpinner.show();
-	service.getMqtt().then((response: MqttConfig) => {
-		config.value = response;
-	}).finally(() => {
+	try {
+		config.value = await service.getMqtt();
+	} finally {
 		loadingSpinner.hide();
-	});
+	}
 }
 
 /**
@@ -102,22 +102,20 @@ async function submit(): Promise<void> {
 	if (form.value === null) {
 		return;
 	}
-	const {valid} = await form.value.validate();
+	const { valid } = await form.value.validate();
 	if (!valid || config.value === null) {
 		return;
 	}
 	loadingSpinner.show();
-	await service.setMqtt(config.value as MqttConfig)
-		.then(() => {
-			toast.success(i18n.t('core.config.mqtt.messages.success'));
-		})
-		.catch(() => {
-			toast.error(i18n.t('core.config.mqtt.messages.error'));
-		})
-		.finally(() => {
-			loadingSpinner.hide();
-		});
+	try {
+		await service.setMqtt(config.value);
+		toast.success(i18n.t('core.config.mqtt.messages.success'));
+	} catch {
+		toast.error(i18n.t('core.config.mqtt.messages.error'));
+	} finally {
+		loadingSpinner.hide();
+	}
 }
 
-loadData();
+onBeforeMount(async () => await loadData());
 </script>

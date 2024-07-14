@@ -1,5 +1,5 @@
 <!--
-Copyright 2022-2023 Roman Ondráček
+Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -53,21 +53,21 @@ limitations under the License.
 </template>
 
 <script lang='ts' setup>
-import {mdiAccount, mdiKey, mdiLogin} from '@mdi/js';
-import {Head} from '@vueuse/head';
-import {AxiosError} from 'axios';
-import {ref, Ref} from 'vue';
-import {useI18n} from 'vue-i18n';
-import {useRoute, useRouter} from 'vue-router';
-import {toast} from 'vue3-toastify';
-import {VForm} from 'vuetify/components';
+import { mdiAccount, mdiKey, mdiLogin } from '@mdi/js';
+import { Head } from '@vueuse/head';
+import { AxiosError } from 'axios';
+import { ref, Ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
+import { toast } from 'vue3-toastify';
+import { VForm } from 'vuetify/components';
 
 import Card from '@/components/Card.vue';
 import PasswordField from '@/components/PasswordField.vue';
 import FormValidator from '@/helpers/formValidator';
-import {useLoadingSpinnerStore} from '@/store/loadingSpinner';
-import {useUserStore} from '@/store/user';
-import {Credentials} from '@/types/auth';
+import { useLoadingSpinnerStore } from '@/store/loadingSpinner';
+import { useUserStore } from '@/store/user';
+import { Credentials } from '@/types/auth';
 
 const i18n = useI18n();
 const loadingSpinner = useLoadingSpinnerStore();
@@ -78,7 +78,7 @@ const credentials: Ref<Credentials> = ref({
 	username: '',
 	password: '',
 });
-const form: Ref<typeof VForm | null> = ref(null);
+const form: Ref<VForm | null> = ref(null);
 
 /**
  * Submit the form
@@ -87,27 +87,28 @@ async function onSubmit(): Promise<void> {
 	if (form.value === null) {
 		return;
 	}
-	const {valid} = await form.value.validate();
+	const { valid } = await form.value.validate();
 	if (!valid) {
 		return;
 	}
 	loadingSpinner.show();
-	await userStore.signIn(credentials.value).then(() => {
+	try {
+		await userStore.signIn(credentials.value);
 		let destination = (route?.query?.redirect as string | undefined) ?? '/';
 		if (destination.startsWith('/auth/sign/in')) {
 			destination = '/';
 		}
-		router.push(destination);
+		await router.push(destination);
 		loadingSpinner.hide();
 		toast.success(i18n.t('core.sign.in.messages.success').toString());
-	}).catch((error: AxiosError) => {
+	} catch (error) {
 		loadingSpinner.hide();
-		if (error.response?.status === 401) {
+		if (error instanceof AxiosError && error.response?.status === 401) {
 			toast.error(i18n.t('core.sign.in.messages.invalidCredentials').toString());
 			return;
 		}
 		toast.error(i18n.t('core.sign.in.messages.error').toString());
-	});
+	}
 }
 
 </script>

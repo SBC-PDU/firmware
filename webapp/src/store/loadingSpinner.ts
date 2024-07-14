@@ -1,5 +1,5 @@
 /**
- * Copyright 2022-2023 Roman Ondráček
+ * Copyright 2022-2024 Roman Ondráček <mail@romanondracek.cz>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {defineStore} from 'pinia';
+import { defineStore } from 'pinia';
 
 /**
  * Loading spinner store state
@@ -39,20 +39,20 @@ export const useLoadingSpinnerStore = defineStore('loadingSpinner', {
 		 * @param {string|null} text Loading spinner text
 		 * @param {number|null} timeout Loading spinner timeout
 		 */
-		show(text: string|null = null, timeout: number|null = null) {
+		show(text: string|null = null, timeout: number|null = null): void {
 			this.enabled = true;
 			this.text = text;
 			if (timeout === null) {
 				return;
 			}
-			this.timeout = window.setTimeout(() => {
+			this.timeout = window.setTimeout((): void => {
 				this.hide();
 			}, timeout);
 		},
 		/**
 		 * Hide loading spinner
 		 */
-		hide() {
+		hide(): void {
 			this.enabled = false;
 			this.text = null;
 			if (this.timeout !== null) {
@@ -64,21 +64,21 @@ export const useLoadingSpinnerStore = defineStore('loadingSpinner', {
 		 * Update loading spinner text
 		 * @param {string|null} text New loading spinner text
 		 */
-		updateText(text: string|null) {
+		updateText(text: string|null): void {
 			this.text = text;
 		},
 	},
 	getters: {
 		/**
 		 * Check if loading spinner is enabled
-		 * @returns {boolean} Loading spinner enablement
+		 * @return {boolean} Loading spinner enablement
 		 */
 		isEnabled(): boolean {
 			return this.enabled;
 		},
 		/**
 		 * Returns loading spinner text
-		 * @returns {string|null} Loading spinner text
+		 * @return {string|null} Loading spinner text
 		 */
 		getText(): string|null {
 			return this.text;
