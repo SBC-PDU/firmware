@@ -14,17 +14,33 @@
  * limitations under the License.
  */
 
-
 import { iqrfEslint } from '@iqrf/eslint-config';
 
-export default iqrfEslint(
+/** @type {import('eslint').Linter.Config[]} */
+const config = [
 	{
-		ignores: [
-			'.pnpm-store/',
-			'coverage/',
-			'dev-dist/',
-			'dist/',
-			'docs/',
-		],
+		files: ['src/locales/*.json'],
+		rules: {
+			'jsonc/sort-keys': [
+				'error',
+				'asc',
+				{
+					caseSensitive: true,
+				},
+			],
+		},
 	},
-);
+];
+
+/** @type {Partial<import('@iqrf/eslint-config').IqrfEslintOptions>} */
+const options = {
+	ignores: [
+		'.pnpm-store/',
+		'coverage/',
+		'dev-dist/',
+		'dist/',
+		'docs/',
+	],
+};
+
+export default iqrfEslint(options, config);

@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createRouter, createWebHistory, type NavigationGuardNext, type RouteLocationNormalized, type RouteRecordRaw } from 'vue-router';
+import {
+	createRouter,
+	createWebHistory,
+	type RouteLocationNormalized,
+	type RouteLocationRaw,
+	type RouteRecordRaw,
+} from 'vue-router';
 
 import { useUserStore } from '@/store/user';
 
@@ -101,7 +107,7 @@ const router = createRouter({
 	routes,
 });
 
-router.beforeEach((to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
+router.beforeEach((to: RouteLocationNormalized): RouteLocationRaw | boolean => {
 	const userStore = useUserStore();
 	const whitelist = [
 		'BadNotFound',
@@ -113,12 +119,12 @@ router.beforeEach((to: RouteLocationNormalized, _from: RouteLocationNormalized, 
 		if (to.path !== '/' && to.name !== 'SignIn') {
 			query = { ...query, redirect: to.path };
 		}
-		return next({ name: 'SignIn', query });
+		return { name: 'SignIn', query };
 	}
 	if (to.name === 'SignIn' && userStore.isLoggedIn) {
-		return next((to.query.redirect as string | undefined) ?? '/');
+		return (to.query.redirect as string | undefined) ?? '/';
 	}
-	next();
+	return true;
 });
 
 export default router;

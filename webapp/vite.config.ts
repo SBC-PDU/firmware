@@ -45,6 +45,9 @@ export default defineConfig(({ command, mode }) => {
 				autoImport: {
 					labs: true,
 				},
+				styles: {
+					configFile: 'src/styles/vuetify-settings.scss',
+				},
 			}),
 			UnheadVite(),
 			VueI18nPlugin({

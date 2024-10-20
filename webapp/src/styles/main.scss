@@ -13,19 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@forward 'vuetify' with (
-	$typography: (
-		'button': (
-			'text-transform': none,
-		),
-	),
-);
+@use 'vuetify';
 @import '@fontsource/roboto/latin-ext.css';
 
 a {
 	text-decoration: none;
-}
-
-.v-btn {
-	text-transform: none !important;
 }

@@ -40,7 +40,7 @@ limitations under the License.
 				<template v-for='networkIface in info.network' :key='networkIface.name'>
 					<tr>
 						<th colspan='2' :class='subheaderClass'>
-							{{ $t('core.system.info.network.title', {name: networkIface.name}) }}
+							{{ $t('core.system.info.network.title', { name: networkIface.name }) }}
 						</th>
 					</tr>
 					<tr>
@@ -183,7 +183,7 @@ function convertBytesToReadableFormat(bytes: number): string {
 		return '0 B';
 	}
 	const i = Math.floor(Math.log(bytes) / Math.log(1_024));
-	return Math.round(bytes / Math.pow(1_024, i)) + ' ' + sizes[i];
+	return `${Math.round(bytes / Math.pow(1_024, i)) } ${ sizes[i]}`;
 }
 
 /**
